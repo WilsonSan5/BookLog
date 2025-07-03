@@ -99,12 +99,13 @@ function displayBookItems(columnId) {
   const column = columns.find((col) => col.id === columnId);
 
   column.books.forEach((book, index) => {
-    const bookItem = document.createElement("li");
+    const bookItem = document.createElement("div");
     bookItem.classList.add(
       "bg-white",
       "hover:bg-gray-50",
       "rounded-lg",
       "p-4",
+      "mb-4",
       "shadow-md",
       "hover:shadow-lg",
       "border",
@@ -160,8 +161,6 @@ function displayBookItems(columnId) {
     );
     authorElement.innerHTML = book.author;
 
-    // Add additional book info if available
-    if (book.pages) {
       const pagesElement = document.createElement("p");
       pagesElement.classList.add(
         "text-xs",
@@ -170,13 +169,8 @@ function displayBookItems(columnId) {
         "items-center"
       );
       pagesElement.innerHTML = `
-          <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
           ${book.pages} pages
         `;
-      bookItem.appendChild(pagesElement);
-    }
 
     // Add action buttons
     const actionButtons = document.createElement("div");
@@ -198,9 +192,10 @@ function displayBookItems(columnId) {
       "text-red-700",
       "rounded-full",
       "transition-colors",
-      "duration-200"
+      "duration-200",
+      "cursor-pointer"
     );
-    removeButton.innerHTML = "🗑️";
+    removeButton.innerHTML = "❌";
     removeButton.onclick = () => {
       column.books = column.books.filter((b) => b !== book);
       displaylColumns();
@@ -210,6 +205,7 @@ function displayBookItems(columnId) {
 
     bookItem.appendChild(titleElement);
     bookItem.appendChild(authorElement);
+    bookItem.appendChild(pagesElement);
     bookItem.appendChild(actionButtons);
     columnElement.appendChild(bookItem);
   });

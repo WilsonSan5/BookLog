@@ -175,8 +175,12 @@ function openBookListModal() {
     closeBookListModal();
   });
 
+
   // Ajouter le bouton "Nouveau livre" dans la modal
-  addNewBookButton();
+  const newBookButton = document.getElementById("add-new-book-button");
+  newBookButton.addEventListener("click", () => {
+    openNewBookModal();
+  });
   
   // Charger et afficher tous les livres au moment de l'ouverture
   getAllBooks().then((books) => {
@@ -192,34 +196,6 @@ function closeBookListModal() {
   overlay.style.display = "none";
 }
 
-function addNewBookButton() {
-  const modal = document.getElementById("book-list-modal");
-  let newBookButton = document.getElementById("new-book-button");
-  
-  if (!newBookButton) {
-    newBookButton = document.createElement("button");
-    newBookButton.id = "new-book-button";
-    newBookButton.textContent = "Nouveau livre";
-    newBookButton.classList.add(
-      "bg-blue-600",
-      "text-white",
-      "font-bold",
-      "py-2",
-      "px-4",
-      "rounded",
-      "mb-4",
-      "bootstrap",
-    );
-    
-    newBookButton.addEventListener("click", () => {
-      openNewBookModal();
-    });
-    
-    // Insérer le bouton avant la table
-    const searchContainer = modal.querySelector("#search-bar").parentElement;
-    searchContainer.appendChild(newBookButton);
-  }
-}
 
 function openNewBookModal() {
   closeBookListModal();
