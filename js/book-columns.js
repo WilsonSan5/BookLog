@@ -7,6 +7,8 @@ let columns = [
   { id: "read", title: "Lu", books: [] },
 ];
 
+let draggedBook = null;
+
 function initializeColumns() {
   // Load columns from localStorage if available
   const savedColumns = localStorage.getItem("columns");
@@ -58,6 +60,17 @@ function displaylColumns() {
     );
     columnTitle.innerHTML = column.title;
 
+    // Add drag-and-drop functionality
+    columnElement.addEventListener("dragover", (e) => {
+      e.preventDefault(); // Allow dropping
+    });
+    columnElement.addEventListener("drop", (e) => {
+      e.preventDefault();
+      if (draggedBook) {
+        moveToColumn(column.id, draggedBook);
+      }
+    });
+
     // List of books in the column
     const bookList = document.createElement("ul");
     bookList.classList.add("space-y-3"); // Adds spacing between book items
@@ -74,147 +87,132 @@ function displaylColumns() {
       emptyMessage.textContent = "Aucun livre dans cette catégorie";
       bookList.appendChild(emptyMessage);
     }
+    columnElement.appendChild(columnTitle);
+    columnsSection.appendChild(columnElement);
+    displayBookItems(column.id);
+  });
+  saveToStorage("columns", columns);
+}
 
-    column.books.forEach((book, index) => {
-      const bookItem = document.createElement("li");
-      bookItem.classList.add(
-        "bg-white",
-        "hover:bg-gray-50",
-        "rounded-lg",
-        "p-4",
-        "shadow-md",
-        "hover:shadow-lg",
-        "border",
-        "border-gray-200",
-        "transition-all",
-        "duration-200",
-        "cursor-pointer",
-        "transform",
-        "hover:-translate-y-1"
-      );
+function displayBookItems(columnId) {
+  const columnElement = document.getElementById(columnId);
+  const column = columns.find((col) => col.id === columnId);
 
-      // Add click event to open book detail modal
-      bookItem.addEventListener("click", (e) => {
-        // Only open modal if clicking on the title (h3) element
-        if (e.target.tagName === "H3" || e.target.closest("h3")) {
-          e.stopPropagation();
-          openBookDetailModal(book);
-        }
-      });
+  column.books.forEach((book, index) => {
+    const bookItem = document.createElement("li");
+    bookItem.classList.add(
+      "bg-white",
+      "hover:bg-gray-50",
+      "rounded-lg",
+      "p-4",
+      "shadow-md",
+      "hover:shadow-lg",
+      "border",
+      "border-gray-200",
+      "transition-all",
+      "duration-200",
+      "cursor-pointer",
+      "transform",
+      "hover:-translate-y-1"
+    );
 
-      // Add animation delay for staggered effect
-      bookItem.style.animationDelay = `${index * 100}ms`;
+    // Add click event to open book detail modal
+    bookItem.addEventListener("click", (e) => {
+      // Only open modal if clicking on the title (h3) element
+      if (e.target.tagName === "H3" || e.target.closest("h3")) {
+        e.stopPropagation();
+        openBookDetailModal(book);
+      }
+    });
 
-      const titleElement = document.createElement("h3");
-      titleElement.classList.add(
-        "text-lg",
-        "font-bold",
-        "text-gray-800",
-        "mb-2",
-        "line-clamp-2",
-        "hover:underline"
-      );
-      titleElement.textContent = book.title;
+    // Make book item draggable
+    bookItem.setAttribute("draggable", "true");
+    bookItem.addEventListener("dragstart", (e) => {
+      draggedBook = book; // Store the dragged book
+      e.dataTransfer.effectAllowed = "move";
+      bookItem.classList.add("opacity-50");
+    });
+    bookItem.addEventListener("dragend", () => {
+      bookItem.classList.remove("opacity-50");
+    });
 
-      const authorElement = document.createElement("p");
-      authorElement.classList.add(
-        "text-sm",
-        "text-gray-600",
-        "mb-2",
+    // Add animation delay for staggered effect
+    bookItem.style.animationDelay = `${index * 100}ms`;
+
+    const titleElement = document.createElement("h3");
+    titleElement.classList.add(
+      "text-lg",
+      "font-bold",
+      "text-gray-800",
+      "mb-2",
+      "line-clamp-2",
+      "hover:underline"
+    );
+    titleElement.textContent = book.title;
+
+    const authorElement = document.createElement("p");
+    authorElement.classList.add(
+      "text-sm",
+      "text-gray-600",
+      "mb-2",
+      "flex",
+      "items-center"
+    );
+    authorElement.innerHTML = book.author;
+
+    // Add additional book info if available
+    if (book.pages) {
+      const pagesElement = document.createElement("p");
+      pagesElement.classList.add(
+        "text-xs",
+        "text-gray-500",
         "flex",
         "items-center"
       );
-      authorElement.innerHTML = book.author;
-
-      // Add additional book info if available
-      if (book.pages) {
-        const pagesElement = document.createElement("p");
-        pagesElement.classList.add(
-          "text-xs",
-          "text-gray-500",
-          "flex",
-          "items-center"
-        );
-        pagesElement.innerHTML = `
+      pagesElement.innerHTML = `
           <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
           ${book.pages} pages
         `;
-        bookItem.appendChild(pagesElement);
-      }
+      bookItem.appendChild(pagesElement);
+    }
 
-      // Add action buttons
-      const actionButtons = document.createElement("div");
-      actionButtons.classList.add(
-        "mt-3",
-        "flex",
-        "justify-between",
-        "items-center"
-      );
+    // Add action buttons
+    const actionButtons = document.createElement("div");
+    actionButtons.classList.add(
+      "mt-3",
+      "flex",
+      "justify-between",
+      "items-center"
+    );
 
-      // Move buttons
-      const moveButtons = document.createElement("div");
-      moveButtons.classList.add("flex", "space-x-2");
+    // Remove button
+    const removeButton = document.createElement("button");
+    removeButton.classList.add(
+      "px-3",
+      "py-1",
+      "text-xs",
+      "bg-red-100",
+      "hover:bg-red-200",
+      "text-red-700",
+      "rounded-full",
+      "transition-colors",
+      "duration-200"
+    );
+    removeButton.innerHTML = "🗑️";
+    removeButton.onclick = () => {
+      column.books = column.books.filter((b) => b !== book);
+      displaylColumns();
+    };
 
-      columns.forEach((targetColumn) => {
-        if (targetColumn.id !== column.id) {
-          const moveButton = document.createElement("button");
-          moveButton.classList.add(
-            "px-3",
-            "py-1",
-            "text-xs",
-            "bg-blue-100",
-            "hover:bg-blue-200",
-            "text-blue-700",
-            "rounded-full",
-            "transition-colors",
-            "duration-200"
-          );
-          moveButton.textContent = `→ ${targetColumn.title}`;
-          moveButton.onclick = () => {
-            // Remove from current column
-            column.books = column.books.filter((b) => b !== book);
-            // Move to target column
-            moveToColumn(targetColumn.id, book);
-          };
-          moveButtons.appendChild(moveButton);
-        }
-      });
+    actionButtons.appendChild(removeButton);
 
-      // Remove button
-      const removeButton = document.createElement("button");
-      removeButton.classList.add(
-        "px-3",
-        "py-1",
-        "text-xs",
-        "bg-red-100",
-        "hover:bg-red-200",
-        "text-red-700",
-        "rounded-full",
-        "transition-colors",
-        "duration-200"
-      );
-      removeButton.innerHTML = "🗑️";
-      removeButton.onclick = () => {
-        column.books = column.books.filter((b) => b !== book);
-        displaylColumns();
-      };
-
-      actionButtons.appendChild(moveButtons);
-      actionButtons.appendChild(removeButton);
-
-      bookItem.appendChild(titleElement);
-      bookItem.appendChild(authorElement);
-      bookItem.appendChild(actionButtons);
-      bookList.appendChild(bookItem);
-    });
-
-    columnElement.appendChild(columnTitle);
-    columnElement.appendChild(bookList);
-    columnsSection.appendChild(columnElement);
+    bookItem.appendChild(titleElement);
+    bookItem.appendChild(authorElement);
+    bookItem.appendChild(actionButtons);
+    columnElement.appendChild(bookItem);
   });
-  saveToStorage("columns", columns);
 }
 
 export function moveToColumn(columnId, book) {
@@ -231,11 +229,45 @@ export function moveToColumn(columnId, book) {
       // Add the book to the new column
       column.books.push(book);
     }
-
-    // Refresh the display
+    // Remove the book from the current column
+    columns.forEach((col) => {
+      if (col.id !== columnId) {
+        col.books = col.books.filter((b) => b.title !== book.title);
+      }
+    });
+    // Refresh all columns display
     displaylColumns();
   }
+  // Save updated columns to localStorage
+  saveToStorage("columns", columns);
+}
+
+function initDragAndDrop() {
+  const columnElements = document.querySelectorAll(".column");
+  columnElements.forEach((column) => {
+    column.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      column.classList.add("bg-gray-100");
+    });
+
+    column.addEventListener("dragleave", () => {
+      column.classList.remove("bg-gray-100");
+    });
+
+    column.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const bookId = e.dataTransfer.getData("text/plain");
+      const book = columns
+        .flatMap((col) => col.books)
+        .find((b) => b.id === bookId);
+      if (book) {
+        moveToColumn(column.id, book);
+      }
+      column.classList.remove("bg-gray-100");
+    });
+  });
 }
 
 initializeColumns();
 displaylColumns();
+initDragAndDrop();

@@ -26,7 +26,7 @@ export function openBookDetailModal(book){
                         </div>
                         <div>
                             <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Date de publication</p>
-                            <p class="text-gray-900 font-medium">${book.published}</p>
+                            <p class="text-gray-900 font-medium">${new Date(book.published).toLocaleDateString('fr-FR')}</p>
                         </div>
                         <div>
                             <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Pages</p>

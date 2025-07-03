@@ -75,16 +75,16 @@ function displayBooks(books) {
 
     // Create buttons for each book
     const addBookToReadButton = document.createElement("button");
-    addBookToReadButton.textContent = "À lire";
+    addBookToReadButton.textContent = "Ajouter à ma liste";
     addBookToReadButton.classList.add(
-      "bg-blue-500",
-      "hover:bg-blue-700",
-      "text-white",
-      "font-bold",
-      "py-2",
+      "text-blue-500",
+      "hover:text-blue-700",
+      "font-semibold",
+      "py-1",
       "px-4",
       "rounded",
-      "add-book-button"
+      "add-book-button",
+      "cursor-pointer",
     );
     addBookToReadButton.addEventListener("click", () => {
       moveToColumn("toRead", book);
@@ -103,6 +103,10 @@ function openBookListModal() {
   overlay.style.display = "block";
   overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
 
+  // FOcus the search Input
+  const searchInput = document.getElementById("search-bar");
+  searchInput.focus();
+
   overlay.addEventListener("click", () => {
     closeBookListModal();
   });
@@ -117,7 +121,11 @@ function closeBookListModal() {
 }
 
 async function init() {
-  const books = await getAllBooks();
+  let books = await getAllBooks();
+  const customBooks = JSON.parse(localStorage.getItem("customBooks"))
+  if (customBooks && customBooks.length > 0) {
+    books.push(...customBooks);
+  }
   displayBooks(books);
 }
 
