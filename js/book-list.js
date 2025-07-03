@@ -54,9 +54,14 @@ function displayBooks(books) {
       "justify-between",
       "mb-2",
     ); // Add hover effect
+    
+    // Convert date to dd/mm/yyyy format
+    const publishedDate = new Date(book.published);
+    const formattedDate = publishedDate.toLocaleDateString('fr-FR');
+    
     row.innerHTML = `
       <div id="book-item" class="p-3">
-        <h3>${book.title}, ${book.published}</h3>
+        <h3>${book.title}, ${formattedDate}</h3>
         <p class="text-sm text-gray-600">${book.author}</p>  
         <p class="text-xs text-gray-500">${book.pages} pages</p>
       </div>

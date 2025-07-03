@@ -1,4 +1,5 @@
 import { openBookDetailModal } from "./book-detail.js";
+import { saveToStorage } from "./storage.js";
 
 let columns = [
   { id: "toRead", title: "A lire", books: [] },
@@ -6,22 +7,33 @@ let columns = [
   { id: "read", title: "Lu", books: [] },
 ];
 
+function initializeColumns() {
+  // Load columns from localStorage if available
+  const savedColumns = localStorage.getItem("columns");
+  if (savedColumns) {
+    columns = JSON.parse(savedColumns);
+  } else {
+    // Initialize with default columns if not found in localStorage
+    saveToStorage("columns", columns);
+  }
+}
+
 function displaylColumns() {
   const columnsSection = document.getElementById("columns-section");
   columnsSection.innerHTML = ""; // Clear existing columns
   columns.forEach((column) => {
     const columnElement = document.createElement("div");
     columnElement.classList.add(
-      "bg-gradient-to-br", 
-      "from-white", 
+      "bg-gradient-to-br",
+      "from-white",
       "to-gray-50",
-      "shadow-lg", 
+      "shadow-lg",
       "hover:shadow-xl",
       "transition-shadow",
       "duration-300",
-      "rounded-xl", 
-      "p-6", 
-      "border", 
+      "rounded-xl",
+      "p-6",
+      "border",
       "border-gray-200",
       "min-h-96",
       "w-full"
@@ -31,8 +43,8 @@ function displaylColumns() {
     // Title of the column
     const columnTitle = document.createElement("h2");
     columnTitle.classList.add(
-      "text-2xl", 
-      "font-bold", 
+      "text-2xl",
+      "font-bold",
       "text-transparent",
       "bg-clip-text",
       "bg-gradient-to-r",
@@ -49,7 +61,7 @@ function displaylColumns() {
     // List of books in the column
     const bookList = document.createElement("ul");
     bookList.classList.add("space-y-3"); // Adds spacing between book items
-    
+
     // Add empty state message if no books
     if (column.books.length === 0) {
       const emptyMessage = document.createElement("li");
@@ -62,17 +74,17 @@ function displaylColumns() {
       emptyMessage.textContent = "Aucun livre dans cette catégorie";
       bookList.appendChild(emptyMessage);
     }
-    
+
     column.books.forEach((book, index) => {
       const bookItem = document.createElement("li");
       bookItem.classList.add(
-        "bg-white", 
+        "bg-white",
         "hover:bg-gray-50",
-        "rounded-lg", 
-        "p-4", 
+        "rounded-lg",
+        "p-4",
         "shadow-md",
         "hover:shadow-lg",
-        "border", 
+        "border",
         "border-gray-200",
         "transition-all",
         "duration-200",
@@ -82,9 +94,9 @@ function displaylColumns() {
       );
 
       // Add click event to open book detail modal
-      bookItem.addEventListener('click', (e) => {
+      bookItem.addEventListener("click", (e) => {
         // Only open modal if clicking on the title (h3) element
-        if (e.target.tagName === 'H3' || e.target.closest('h3')) {
+        if (e.target.tagName === "H3" || e.target.closest("h3")) {
           e.stopPropagation();
           openBookDetailModal(book);
         }
@@ -95,8 +107,8 @@ function displaylColumns() {
 
       const titleElement = document.createElement("h3");
       titleElement.classList.add(
-        "text-lg", 
-        "font-bold", 
+        "text-lg",
+        "font-bold",
         "text-gray-800",
         "mb-2",
         "line-clamp-2",
@@ -106,15 +118,13 @@ function displaylColumns() {
 
       const authorElement = document.createElement("p");
       authorElement.classList.add(
-        "text-sm", 
+        "text-sm",
         "text-gray-600",
         "mb-2",
         "flex",
         "items-center"
       );
-      authorElement.innerHTML = 
-        book.author
-      ;
+      authorElement.innerHTML = book.author;
 
       // Add additional book info if available
       if (book.pages) {
@@ -164,7 +174,7 @@ function displaylColumns() {
           moveButton.textContent = `→ ${targetColumn.title}`;
           moveButton.onclick = () => {
             // Remove from current column
-            column.books = column.books.filter(b => b !== book);
+            column.books = column.books.filter((b) => b !== book);
             // Move to target column
             moveToColumn(targetColumn.id, book);
           };
@@ -187,7 +197,7 @@ function displaylColumns() {
       );
       removeButton.innerHTML = "🗑️";
       removeButton.onclick = () => {
-        column.books = column.books.filter(b => b !== book);
+        column.books = column.books.filter((b) => b !== book);
         displaylColumns();
       };
 
@@ -199,7 +209,7 @@ function displaylColumns() {
       bookItem.appendChild(actionButtons);
       bookList.appendChild(bookItem);
     });
-    
+
     columnElement.appendChild(columnTitle);
     columnElement.appendChild(bookList);
     columnsSection.appendChild(columnElement);
@@ -213,7 +223,9 @@ export function moveToColumn(columnId, book) {
   const column = columns.find((col) => col.id === columnId);
   if (column) {
     // Check if book already exists in the column
-    const bookExists = column.books.some(b => b.title === book.title && b.author === book.author);
+    const bookExists = column.books.some(
+      (b) => b.title === book.title && b.author === book.author
+    );
     if (!bookExists) {
       // Add the book to the new column
       column.books.push(book);
@@ -221,7 +233,9 @@ export function moveToColumn(columnId, book) {
 
     // Refresh the display
     displaylColumns();
+    saveToStorage("columns", columns);
   }
 }
 
+initializeColumns();
 displaylColumns();
