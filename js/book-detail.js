@@ -1,3 +1,5 @@
+import { moveToColumn } from "./book-columns.js";
+
 export function openBookDetailModal(book){
     const modal = document.getElementById("book-detail-modal");
 
@@ -41,8 +43,8 @@ export function openBookDetailModal(book){
             
             <!-- Modal Footer -->
             <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end">
-                <button id="close-footer-button" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                    Fermer
+                <button id="add-to-read-button" class="bg-blue-400 hover:bg-blue-500 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    Ajouter à ma liste
                 </button>
             </div>
         </div>
@@ -54,7 +56,7 @@ export function openBookDetailModal(book){
     
     // Add close button functionality
     const closeButton = document.getElementById("close-button");
-    const closeFooterButton = document.getElementById("close-footer-button");
+    
     
     const closeModal = () => {
         modal.style.display = "none";
@@ -62,6 +64,14 @@ export function openBookDetailModal(book){
         // Remove event listener to prevent memory leaks
         document.removeEventListener('keydown', handleEscapeKey);
     };
+
+    // Add event listener for the "Add to Read" button
+    const addToReadButton = document.getElementById("add-to-read-button");
+    addToReadButton.onclick = () => {
+        // Logic to add the book to the "To Read" column
+        moveToColumn("toRead", book);
+        closeModal();
+    }
     
     // Handle escape key
     const handleEscapeKey = (e) => {
@@ -71,7 +81,6 @@ export function openBookDetailModal(book){
     };
     
     closeButton.onclick = closeModal;
-    closeFooterButton.onclick = closeModal;
     
     // Close on backdrop click (clicking outside the modal content)
     modal.onclick = (e) => {

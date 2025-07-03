@@ -1,10 +1,27 @@
 import { moveToColumn } from "./book-columns.js";
+import { openBookDetailModal } from "./book-detail.js";
 
 const ApiRoute = "https://keligmartin.github.io/api/books.json";
 
 const searchBarElement = document.getElementById("search-bar-button");
-searchBarElement.addEventListener("click",()=>{
+searchBarElement.addEventListener("click", () => {
   openBookListModal();
+});
+
+let searchTerm = "";
+const searchInputElement = document.getElementById("search-bar");
+searchInputElement.addEventListener("input", (event) => {
+  searchTerm = event.target.value.toLowerCase();
+  console.log("Recherche en cours :", searchTerm);
+  getAllBooks().then((books) => {
+    const filteredBooks = books.filter((book) => {
+      return (
+        book.title.toLowerCase().includes(searchTerm) ||
+        book.author.toLowerCase().includes(searchTerm)
+      );
+    });
+    displayBooks(filteredBooks);
+  });
 });
 
 async function getAllBooks() {
@@ -26,24 +43,50 @@ function displayBooks(books) {
   const tableBody = document.getElementById("books-table-body");
   tableBody.innerHTML = ""; // Clear existing rows
   books.forEach((book) => {
-      const row = document.createElement("tr");
-      row.classList.add("hover:bg-gray-100", "transition-colors", "duration-200"); // Add hover effect
-      row.innerHTML = `
-      <td class="p-3 border border-gray-300">${book.title}</td>
-      <td class="p-3 border border-gray-300">${book.author}</td>
-      <td class="p-3 border border-gray-300">${book.published}</td>
-      <td class="p-3 border border-gray-300">${book.pages}</td>
+    const row = document.createElement("tr");
+    row.classList.add(
+      "hover:bg-gray-100",
+      "transition-colors",
+      "duration-200",
+      "rounded-md",
+      "cursor-pointer",
+      "flex",
+      "justify-between",
+      "mb-2",
+    ); // Add hover effect
+    row.innerHTML = `
+      <div id="book-item" class="p-3">
+        <h3>${book.title}, ${book.published}</h3>
+        <p class="text-sm text-gray-600">${book.author}</p>  
+        <p class="text-xs text-gray-500">${book.pages} pages</p>
+      </div>
       `;
-      // Create buttons for each book
-      const addBookToReadButton = document.createElement("button");
-      addBookToReadButton.textContent = "À lire";
-      addBookToReadButton.classList.add("bg-blue-500", "hover:bg-blue-700", "text-white", "font-bold", "py-2", "px-4", "rounded", "add-book-button");
-      addBookToReadButton.addEventListener("click", () => {
-        moveToColumn("toRead", book);
-        closeBookListModal();
-      })
-      row.appendChild(addBookToReadButton);
-      tableBody.appendChild(row);
+
+    const bookItem = row.querySelector("#book-item");
+    bookItem.addEventListener("click", () => {
+      openBookDetailModal(book);
+      closeBookListModal();
+    });
+
+    // Create buttons for each book
+    const addBookToReadButton = document.createElement("button");
+    addBookToReadButton.textContent = "À lire";
+    addBookToReadButton.classList.add(
+      "bg-blue-500",
+      "hover:bg-blue-700",
+      "text-white",
+      "font-bold",
+      "py-2",
+      "px-4",
+      "rounded",
+      "add-book-button"
+    );
+    addBookToReadButton.addEventListener("click", () => {
+      moveToColumn("toRead", book);
+      closeBookListModal();
+    });
+    row.appendChild(addBookToReadButton);
+    tableBody.appendChild(row);
   });
 }
 
