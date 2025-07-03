@@ -28,6 +28,7 @@ export function openBookDetailModal(book){
                             <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Date de publication</p>
                             <p class="text-gray-900 font-medium">${formatPublicationDate(book.published)}</p>
                         </div>
+
                         <div>
                             <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Pages</p>
                             <p class="text-gray-900 font-medium">${book.pages}</p>
@@ -98,10 +99,19 @@ export function openBookDetailModal(book){
 
 // Fonction pour formater la date de publication
 function formatPublicationDate(published) {
-  // Si la date est au format DD/MM/YYYY (nouveau format)
-  if (published && published.includes('/')) {
-    return published;
+  // Vérifier que published existe et le convertir en string
+  if (!published) {
+    return 'Non spécifiée';
   }
+  
+  // Convertir en string pour pouvoir utiliser includes
+  const publishedStr = String(published);
+  
+  // Si la date est au format DD/MM/YYYY (nouveau format)
+  if (publishedStr.includes('/')) {
+    return publishedStr;
+  }
+  
   // Si c'est juste une année (ancien format de l'API)
-  return published || 'Non spécifiée';
+  return publishedStr;
 }

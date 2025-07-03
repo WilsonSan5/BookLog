@@ -1,7 +1,8 @@
 import { moveToColumn } from "./book-columns.js";
 import { openBookDetailModal } from "./book-detail.js";
 
-const ApiRoute = "https://keligmartin.github.io/api/books.json";
+// Changer l'API pour une API avec plus de livres
+const ApiRoute = "https://openlibrary.org/subjects/fiction.json?limit=50";
 
 const searchBarElement = document.getElementById("search-bar-button");
 searchBarElement.addEventListener("click", () => {
@@ -26,14 +27,23 @@ searchInputElement.addEventListener("input", (event) => {
 
 async function getAllBooks() {
   try {
-    // Récupérer les livres de l'API
+    // Récupérer les livres de l'API OpenLibrary
     const response = await fetch(ApiRoute);
-    const apiBooks = await response.json();
+    const data = await response.json();
+    
+    // Transformer les données de l'API OpenLibrary au format attendu
+    const apiBooks = data.works.map(work => ({
+      title: work.title,
+      author: work.authors ? work.authors[0].name : "Auteur inconnu",
+      published: work.first_publish_year ? String(work.first_publish_year) : "Date inconnue", // Convertir en string
+      pages: Math.floor(Math.random() * 400) + 100,
+      description: work.subject ? work.subject.slice(0, 3).join(", ") : "Description non disponible"
+    }));
     
     // Récupérer les livres stockés localement
     const localBooks = JSON.parse(localStorage.getItem('customBooks') || '[]');
     
-    // Récupérer la liste des livres supprimés (au lieu de hiddenBooks)
+    // Récupérer la liste des livres supprimés
     const deletedBooks = JSON.parse(localStorage.getItem('deletedBooks') || '[]');
     
     // Filtrer les livres de l'API pour exclure ceux qui ont été supprimés
@@ -49,6 +59,32 @@ async function getAllBooks() {
     return allBooks;
   } catch (error) {
     console.error("Erreur lors de la récupération des books :", error);
+    // En cas d'erreur, utiliser une API de fallback
+    return await getFallbackBooks();
+  }
+}
+
+// Fonction de fallback avec une autre API
+async function getFallbackBooks() {
+  try {
+    // API alternative : Google Books API (sans clé requise pour les recherches basiques)
+    const fallbackResponse = await fetch("https://www.googleapis.com/books/v1/volumes?q=fiction&maxResults=40");
+    const fallbackData = await fallbackResponse.json();
+    
+    const fallbackBooks = fallbackData.items.map(item => ({
+      title: item.volumeInfo.title || "Titre inconnu",
+      author: item.volumeInfo.authors ? item.volumeInfo.authors[0] : "Auteur inconnu",
+      published: item.volumeInfo.publishedDate ? String(item.volumeInfo.publishedDate.split('-')[0]) : "Date inconnue", // Convertir en string
+      pages: item.volumeInfo.pageCount || Math.floor(Math.random() * 400) + 100,
+      description: item.volumeInfo.description ? 
+        item.volumeInfo.description.substring(0, 200) + "..." : 
+        "Description non disponible"
+    }));
+    
+    return fallbackBooks;
+  } catch (fallbackError) {
+    console.error("Erreur avec l'API de fallback :", fallbackError);
+    // En dernier recours, retourner seulement les livres locaux
     return JSON.parse(localStorage.getItem('customBooks') || '[]');
   }
 }
@@ -374,34 +410,29 @@ async function handleNewBookSubmit(event) {
   // Créer la date de publication au format DD/MM/YYYY
   const published = `${day}/${month}/${year}`;
   
-  // Créer un ID unique pour le nouveau livre
+  // Créer un livre temporaire avec un ID unique
   const newBook = {
-    id: Date.now(), // Utiliser timestamp comme ID unique
+    id: Date.now(), // ID unique pour identifier que c'est un livre temporaire
     title,
     author,
     published,
     pages,
-    description
+    description,
+    isTemporary: true // Flag pour indiquer que c'est un livre temporaire
   };
   
   try {
-    // Récupérer les livres personnalisés existants
-    const existingCustomBooks = JSON.parse(localStorage.getItem('customBooks') || '[]');
+    // Importer la fonction moveToColumn depuis book-columns.js
+    const { moveToColumn } = await import('./book-columns.js');
     
-    // Ajouter le nouveau livre
-    existingCustomBooks.push(newBook);
-    
-    // Sauvegarder dans localStorage
-    localStorage.setItem('customBooks', JSON.stringify(existingCustomBooks));
+    // Ajouter directement le livre à la colonne "À lire"
+    moveToColumn("toRead", newBook);
     
     // Afficher une notification de succès
-    showNotification("Livre ajouté avec succès !", "success");
+    showNotification(`"${title}" a été ajouté à votre liste "À lire" !`, "success");
     
     // Fermer la modal du formulaire
     closeNewBookModalOnly();
-    
-    // Rouvrir la liste des livres avec le nouveau livre
-    openBookListModal();
     
   } catch (error) {
     console.error("Erreur:", error);

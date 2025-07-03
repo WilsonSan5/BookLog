@@ -193,38 +193,10 @@ function displaylColumns() {
         showNotification(`"${book.title}" a été retiré de la colonne`, "success");
       };
 
-      // Delete button (supprimer définitivement) - garde la popup pour cette action
-      const deleteButton = document.createElement("button");
-      deleteButton.classList.add(
-        "px-3",
-        "py-1",
-        "text-xs",
-        "bg-red-100",
-        "hover:bg-red-200",
-        "text-red-700",
-        "rounded-full",
-        "transition-colors",
-        "duration-200",
-      );
-      deleteButton.innerHTML = "❌";
-      deleteButton.onclick = () => {
-        showDeleteConfirmation(book.title, "delete", () => {
-          if (book.id) {
-            // Livre personnalisé - suppression définitive
-            removeBookFromAPI(book, column);
-          } else {
-            // Livre de l'API externe - suppression de la colonne et masquage
-            removeBookFromColumn(book, column);
-          }
-        });
-      };
+      
 
       actionButtons.appendChild(moveButtons);
       actionButtons.appendChild(removeButton);
-      
-      // N'ajouter le bouton de suppression définitive que pour les livres personnalisés
-      // ou afficher pour tous mais avec des comportements différents
-      actionButtons.appendChild(deleteButton);
 
       bookItem.appendChild(titleElement);
       bookItem.appendChild(authorElement);
@@ -277,21 +249,24 @@ function removeBookFromColumn(book, column) {
   showNotification(`"${book.title}" a été supprimé définitivement`, "success");
 }
 
-// Fonction pour supprimer un livre définitivement (livres personnalisés)
+// Fonction pour supprimer un livre définitivement (livres personnalisés et temporaires)
 function removeBookFromAPI(book, column) {
   // Supprimer de la colonne actuelle
   column.books = column.books.filter(b => b !== book);
   
-  // Supprimer définitivement du localStorage
-  const customBooks = JSON.parse(localStorage.getItem('customBooks') || '[]');
-  const updatedCustomBooks = customBooks.filter(b => b.id !== book.id);
-  localStorage.setItem('customBooks', JSON.stringify(updatedCustomBooks));
+  if (book.isTemporary) {
+    // Livre temporaire - juste le supprimer de la colonne, rien d'autre à faire
+    showNotification(`"${book.title}" a été supprimé`, "success");
+  } else if (book.id) {
+    // Livre personnalisé permanent - supprimer du localStorage
+    const customBooks = JSON.parse(localStorage.getItem('customBooks') || '[]');
+    const updatedCustomBooks = customBooks.filter(b => b.id !== book.id);
+    localStorage.setItem('customBooks', JSON.stringify(updatedCustomBooks));
+    showNotification(`"${book.title}" a été supprimé définitivement`, "success");
+  }
   
   // Rafraîchir l'affichage
   displaylColumns();
-  
-  // Afficher une notification de succès
-  showNotification(`"${book.title}" a été supprimé définitivement`, "success");
 }
 
 // Ajouter la fonction showNotification si elle n'existe pas déjà
