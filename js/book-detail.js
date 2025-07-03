@@ -26,7 +26,7 @@ export function openBookDetailModal(book){
                         </div>
                         <div>
                             <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Date de publication</p>
-                            <p class="text-gray-900 font-medium">${book.published}</p>
+                            <p class="text-gray-900 font-medium">${formatPublicationDate(book.published)}</p>
                         </div>
                         <div>
                             <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Pages</p>
@@ -94,4 +94,14 @@ export function openBookDetailModal(book){
     
     // Show the modal
     modal.style.display = "flex";
+}
+
+// Fonction pour formater la date de publication
+function formatPublicationDate(published) {
+  // Si la date est au format DD/MM/YYYY (nouveau format)
+  if (published && published.includes('/')) {
+    return published;
+  }
+  // Si c'est juste une année (ancien format de l'API)
+  return published || 'Non spécifiée';
 }
