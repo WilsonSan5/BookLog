@@ -214,6 +214,7 @@ function displaylColumns() {
     columnElement.appendChild(bookList);
     columnsSection.appendChild(columnElement);
   });
+  saveToStorage("columns", columns);
 }
 
 export function moveToColumn(columnId, book) {
@@ -233,7 +234,6 @@ export function moveToColumn(columnId, book) {
 
     // Refresh the display
     displaylColumns();
-    saveToStorage("columns", columns);
   }
 }
 
