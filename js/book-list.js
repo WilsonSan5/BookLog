@@ -105,7 +105,7 @@ function displayBooks(books) {
       "rounded-md",
       "cursor-pointer",
       "flex",
-      
+      "items-center",
       "justify-between",
       "mb-2",
     ); // Add hover effect
