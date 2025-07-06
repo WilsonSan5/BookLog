@@ -4,6 +4,8 @@ import { openBookDetailModal } from "./book-detail.js";
 // Changer l'API pour une API avec plus de livres
 const ApiRoute = "https://openlibrary.org/subjects/fiction.json?limit=50";
 
+let isLoading = false;
+
 const searchBarElement = document.getElementById("search-bar-button");
 searchBarElement.addEventListener("click", () => {
   openBookListModal();
@@ -27,6 +29,7 @@ searchInputElement.addEventListener("input", (event) => {
 
 async function getAllBooks() {
   try {
+    isLoading = true;
     // Récupérer les livres de l'API OpenLibrary
     const response = await fetch(ApiRoute);
     const data = await response.json();
@@ -56,6 +59,7 @@ async function getAllBooks() {
     const allBooks = [...filteredApiBooks, ...localBooks];
     
     console.log(allBooks);
+    isLoading = false;
     return allBooks;
   } catch (error) {
     console.error("Erreur lors de la récupération des books :", error);
@@ -600,6 +604,7 @@ function showDeleteConfirmation(bookTitle, actionType, onConfirm) {
   });
   overlay.addEventListener("click", closeModal);
 }
+
 async function init() {
   let books = await getAllBooks();
   const customBooks = JSON.parse(localStorage.getItem("customBooks"))
