@@ -1,5 +1,5 @@
 import { openBookDetailModal } from "./book-detail.js";
-import { saveToStorage } from "./storage.js";
+import { saveToStorage } from "./book-storage.js";
 
 let columns = [
   { id: "toRead", title: "A lire", books: [] },
@@ -10,19 +10,19 @@ let columns = [
 let draggedBook = null;
 
 function initializeColumns() {
-  // Load columns from localStorage if available
+  // Charger les colonnes depuis localStorage si disponibles
   const savedColumns = localStorage.getItem("columns");
   if (savedColumns) {
     columns = JSON.parse(savedColumns);
   } else {
-    // Initialize with default columns if not found in localStorage
+    // Initialiser avec les colonnes par défaut si non trouvées dans localStorage
     saveToStorage("columns", columns);
   }
 }
 
 function displaylColumns() {
   const columnsSection = document.getElementById("columns-section");
-  columnsSection.innerHTML = ""; // Clear existing columns
+  columnsSection.innerHTML = ""; // Vider les colonnes existantes
   columns.forEach((column) => {
     const columnElement = document.createElement("div");
     columnElement.classList.add(
@@ -42,7 +42,7 @@ function displaylColumns() {
     );
     columnElement.id = column.id;
 
-    // Title of the column
+    // Titre de la colonne
     const columnTitle = document.createElement("h2");
     columnTitle.classList.add(
       "text-2xl",
@@ -60,9 +60,9 @@ function displaylColumns() {
     );
     columnTitle.innerHTML = column.title;
 
-    // Add drag-and-drop functionality
+    // Ajouter la fonctionnalité de glisser-déposer
     columnElement.addEventListener("dragover", (e) => {
-      e.preventDefault(); // Allow dropping
+      e.preventDefault(); // Permettre le dépôt
     });
     columnElement.addEventListener("drop", (e) => {
       e.preventDefault();
@@ -71,11 +71,11 @@ function displaylColumns() {
       }
     });
 
-    // List of books in the column
+    // Liste des livres dans la colonne
     const bookList = document.createElement("ul");
-    bookList.classList.add("space-y-3"); // Adds spacing between book items
+    bookList.classList.add("space-y-3"); // Ajoute un espacement entre les éléments de livre
 
-    // Add empty state message if no books
+    // Ajouter un message d'état vide si aucun livre
     if (column.books.length === 0) {
       const emptyMessage = document.createElement("li");
       emptyMessage.classList.add(
@@ -117,19 +117,19 @@ function displayBookItems(columnId) {
       "hover:-translate-y-1"
     );
 
-    // Add click event to open book detail modal
+    // Ajouter un événement de clic pour ouvrir la modale de détails du livre
     bookItem.addEventListener("click", (e) => {
-      // Only open modal if clicking on the title (h3) element
+      // Ouvrir la modale seulement si on clique sur le titre (élément h3)
       if (e.target.tagName === "H3" || e.target.closest("h3")) {
         e.stopPropagation();
         openBookDetailModal(book);
       }
     });
 
-    // Make book item draggable
+    // Rendre l'élément livre déplaçable
     bookItem.setAttribute("draggable", "true");
     bookItem.addEventListener("dragstart", (e) => {
-      draggedBook = book; // Store the dragged book
+      draggedBook = book; // Stocker le livre déplacé
       e.dataTransfer.effectAllowed = "move";
       bookItem.classList.add("opacity-50");
     });
@@ -137,7 +137,7 @@ function displayBookItems(columnId) {
       bookItem.classList.remove("opacity-50");
     });
 
-    // Add animation delay for staggered effect
+    // Ajouter un délai d'animation pour un effet échelonné
     bookItem.style.animationDelay = `${index * 100}ms`;
 
     const titleElement = document.createElement("h3");
@@ -172,7 +172,7 @@ function displayBookItems(columnId) {
           ${book.pages} pages
         `;
 
-    // Add action buttons
+    // Ajouter les boutons d'action
     const actionButtons = document.createElement("div");
     actionButtons.classList.add(
       "mt-3",
@@ -181,7 +181,7 @@ function displayBookItems(columnId) {
       "items-center"
     );
 
-    // Remove button
+    // Bouton de suppression
     const removeButton = document.createElement("button");
     removeButton.classList.add(
       "px-3",
@@ -217,24 +217,24 @@ export function moveToColumn(columnId, book) {
   );
   const column = columns.find((col) => col.id === columnId);
   if (column) {
-    // Check if book already exists in the column
+    // Vérifier si le livre existe déjà dans la colonne
     const bookExists = column.books.some(
       (b) => b.title === book.title && b.author === book.author
     );
     if (!bookExists) {
-      // Add the book to the new column
+      // Ajouter le livre à la nouvelle colonne
       column.books.push(book);
     }
-    // Remove the book from the current column
+    // Supprimer le livre de la colonne actuelle
     columns.forEach((col) => {
       if (col.id !== columnId) {
         col.books = col.books.filter((b) => b.title !== book.title);
       }
     });
-    // Refresh all columns display
+    // Actualiser l'affichage de toutes les colonnes
     displaylColumns();
   }
-  // Save updated columns to localStorage
+  // Sauvegarder les colonnes mises à jour dans localStorage
   saveToStorage("columns", columns);
 }
 
