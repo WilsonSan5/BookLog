@@ -4,9 +4,9 @@ export function openBookDetailModal(book){
     const modal = document.getElementById("book-detail-modal");
 
     const bookDetailContent = `
-        <!-- Modal Container -->
+        <!-- Conteneur de la modale -->
         <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden transform transition-all">
-            <!-- Modal Header -->
+            <!-- En-tête de la modale -->
             <div class="flex justify-between items-center p-6 border-b border-gray-200 bg-gray-50">
                 <h2 class="text-2xl font-bold text-gray-900">${book.title}</h2>
                 <button id="close-button" class="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100">
@@ -16,7 +16,7 @@ export function openBookDetailModal(book){
                 </button>
             </div>
             
-            <!-- Modal Body -->
+            <!-- Corps de la modale -->
             <div class="p-6 overflow-y-auto max-h-[60vh]">
                 <div class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -42,7 +42,7 @@ export function openBookDetailModal(book){
                 </div>
             </div>
             
-            <!-- Modal Footer -->
+            <!-- Pied de page de la modale -->
             <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end">
                 <button id="add-to-read-button" class="bg-blue-400 hover:bg-blue-500 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                     Ajouter à ma liste
@@ -51,30 +51,30 @@ export function openBookDetailModal(book){
         </div>
     `;
     
-    // Set modal classes for backdrop and positioning
+    // Définir les classes de la modale pour le fond et le positionnement
     modal.className = "fixed inset-0 bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50 p-4";
     modal.innerHTML = bookDetailContent;
     
-    // Add close button functionality
+    // Ajouter la fonctionnalité du bouton de fermeture
     const closeButton = document.getElementById("close-button");
     
     
     const closeModal = () => {
         modal.style.display = "none";
-        modal.className = ""; // Reset classes when closing
-        // Remove event listener to prevent memory leaks
+        modal.className = ""; // Réinitialiser les classes lors de la fermeture
+        // Supprimer l'écouteur d'événement pour éviter les fuites mémoire
         document.removeEventListener('keydown', handleEscapeKey);
     };
 
-    // Add event listener for the "Add to Read" button
+    // Ajouter l'écouteur d'événement pour le bouton "Ajouter à lire"
     const addToReadButton = document.getElementById("add-to-read-button");
     addToReadButton.onclick = () => {
-        // Logic to add the book to the "To Read" column
+        // Logique pour ajouter le livre à la colonne "À lire"
         moveToColumn("toRead", book);
         closeModal();
     }
     
-    // Handle escape key
+    // Gérer la touche Échap
     const handleEscapeKey = (e) => {
         if (e.key === 'Escape') {
             closeModal();
@@ -83,17 +83,17 @@ export function openBookDetailModal(book){
     
     closeButton.onclick = closeModal;
     
-    // Close on backdrop click (clicking outside the modal content)
+    // Fermer en cliquant sur l'arrière-plan (clic en dehors du contenu de la modale)
     modal.onclick = (e) => {
         if (e.target === modal) {
             closeModal();
         }
     };
     
-    // Close on Escape key
+    // Fermer avec la touche Échap
     document.addEventListener('keydown', handleEscapeKey);
     
-    // Show the modal
+    // Afficher la modale
     modal.style.display = "flex";
 }
 
