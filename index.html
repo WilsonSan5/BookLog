@@ -10,7 +10,7 @@
   <body class="bg-gray-100 text-gray-800">
     <div class="container mx-auto p-4">
       <header class="bg-white shadow-md rounded-lg p-6 mb-6">
-        <h1 class="text-3xl font-bold text-center text-blue-600">BookLog</h1>
+      <h1 class="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-6 border-b border-gray-200 pb-3">BookLog</h1>
         <div class="mt-4">
           <input
             class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -28,7 +28,7 @@
     </div>
 
     <!-- bookList Modal -->
-    <div id="book-list-modal" class="fixed  modal inset-0 bg-white shadow-lg rounded-lg p-6 max-w-4xl mx-auto mt-20 z-50">
+    <div id="book-list-modal" class="fixed  modal inset-0 bg-white shadow-lg rounded-lg p-6 max-w-4xl mx-auto top-4 z-50">
       <div class="mb-4">
         <input
           class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -37,8 +37,9 @@
           placeholder="Chercher un livre"
         />
       </div>
+      <p class="mb-2">Vous ne trouvez pas votre livre ? <span id="add-new-book-button" class="underline text-blue-400 cursor-pointer font-semibold">Ajouter un livre</span></p>
       <div class="table-container overflow-x-auto">
-        <h2 class="text-3xl font-semibold my-2 mb-4">Les plus populaires</h2>
+        <h2 class="text-3xl font-semibold my-2 mb-4">🔥 Les plus populaires</h2>
           <ul id="books-table-body" class="bg-white">
             <!-- Les livres seront insérés ici -->
           </ul>
