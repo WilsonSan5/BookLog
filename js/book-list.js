@@ -1,13 +1,8 @@
 import { moveToColumn } from "./book-columns.js";
 import { openBookDetailModal } from "./book-detail.js";
 import { getAllBooks } from "./book-api.js";
-import { showNotification, formatDate } from "./book-notification.js";
-import {
-  createNewBookModalHTML,
-  initializeDateSelectors,
-  getFormData,
-  createBookFromForm,
-} from "./book-form.js";
+import { formatDate } from "./book-notification.js";
+import { openNewBookModal } from "./book-new.js";
 import { loadFromStorage } from "./book-storage.js";
 
 const modalOverlay = document.getElementById("modal-overlay");
@@ -32,6 +27,30 @@ searchInputElement.addEventListener("input", (event) => {
     displayBooks(filteredBooks);
   });
 });
+
+export function openBookListModal() {
+  const modal = document.getElementById("book-list-modal");
+  modal.style.display = "flex";
+
+  modalOverlay.style.display = "block";
+
+  const searchInput = document.getElementById("search-bar");
+  searchInput.focus();
+
+  modalOverlay.addEventListener("click", () => {
+    closeBookListModal();
+  });
+
+  const newBookButton = document.getElementById("add-new-book-button");
+  newBookButton.addEventListener("click", () => {
+    closeBookListModal();
+    openNewBookModal();
+  });
+
+  getAllBooks().then((books) => {
+    displayBooks(books);
+  });
+}
 
 function displayBooks(books) {
   const tableBody = document.getElementById("books-table-body");
@@ -91,98 +110,11 @@ function displayBooks(books) {
   });
 }
 
-function openBookListModal() {
-  const modal = document.getElementById("book-list-modal");
-  modal.style.display = "flex";
-
-  modalOverlay.style.display = "block";
-  modalOverlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-
-  const searchInput = document.getElementById("search-bar");
-  searchInput.focus();
-
-  modalOverlay.addEventListener("click", () => {
-    closeBookListModal();
-  });
-
-  const newBookButton = document.getElementById("add-new-book-button");
-  newBookButton.addEventListener("click", () => {
-    openNewBookModal();
-  });
-
-  getAllBooks().then((books) => {
-    displayBooks(books);
-  });
-}
-
 function closeBookListModal() {
   const modal = document.getElementById("book-list-modal");
   modal.style.display = "none";
 
   modalOverlay.style.display = "none";
-}
-
-function openNewBookModal() {
-  closeBookListModal();
-
-  const formModal = document.getElementById("new-book-modal");
-  formModal.innerHTML = ""; // Vider le contenu précédent si nécessaire
-  formModal.id = "new-book-modal";
-  formModal.className =
-    "fixed inset-0 bg-white shadow-lg rounded-lg p-6 max-w-4xl mx-auto mt-20 z-50 h-min";
-  formModal.innerHTML = createNewBookModalHTML();
-
-  formModal.style.display = "block";
-
-  initializeDateSelectors();
-
-  modalOverlay.id = "new-book-overlay";
-  modalOverlay.style.display = "block";
-
-  document
-    .getElementById("close-new-book-modal")
-    .addEventListener("click", closeNewBookModal);
-  document
-    .getElementById("cancel-new-book")
-    .addEventListener("click", closeNewBookModal);
-  modalOverlay.addEventListener("click", closeNewBookModal, closeBookListModal);
-
-  const form = document.getElementById("new-book-form");
-  form.addEventListener("submit", handleNewBookSubmit);
-}
-
-async function handleNewBookSubmit(event) {
-  event.preventDefault();
-
-  const formData = getFormData();
-  const newBook = createBookFromForm(formData);
-
-  try {
-    moveToColumn("toRead", newBook);
-    showNotification(
-      `"${formData.title}" a été ajouté à votre liste "À lire" !`,
-      "success"
-    );
-    closeNewBookModalOnly();
-  } catch (error) {
-    console.error("Erreur:", error);
-    showNotification(
-      "Erreur lors de l'ajout du livre. Veuillez réessayer.",
-      "error"
-    );
-  }
-}
-
-function closeNewBookModal() {
-  closeNewBookModalOnly();
-  openBookListModal();
-}
-
-function closeNewBookModalOnly() {
-  const modal = document.getElementById("new-book-modal");
-
-  if (modal) modal.style.display = "none";
-  if (modalOverlay) modalOverlay.style.display = "none";
 }
 
 async function init() {
