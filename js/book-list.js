@@ -56,8 +56,8 @@ function displayBooks(books) {
   const tableBody = document.getElementById("books-table-body");
   tableBody.innerHTML = "";
   books.forEach((book) => {
-    const row = document.createElement("tr");
-    row.classList.add(
+    const bookItem = document.createElement("div");
+    bookItem.classList.add(
       "hover:bg-gray-100",
       "transition-colors",
       "duration-200",
@@ -65,27 +65,33 @@ function displayBooks(books) {
       "cursor-pointer",
       "flex",
       "justify-between",
-      "mb-2"
+      "items-center",
+      "mb-2",
+      "p-4",
     );
 
     const formattedDate = formatDate(book.published);
 
-    row.innerHTML = `
-      <div id="book-item" class="p-3">
+    bookItem.innerHTML = `
+    <div>
         <h3>${book.title}, ${formattedDate}</h3>
         <p class="text-sm text-gray-600">${book.author}</p>  
         <p class="text-xs text-gray-500">${book.pages} pages</p>
-      </div>
+    </div>
     `;
 
-    const bookItem = row.querySelector("#book-item");
     bookItem.addEventListener("click", () => {
-      openBookDetailModal(book);
       closeBookListModal();
+      openBookDetailModal(book);
     });
 
     const buttonsContainer = document.createElement("div");
-    buttonsContainer.classList.add("flex", "flex-col", "space-y-2");
+    buttonsContainer.classList.add(
+      "flex",
+      "flex-col",
+      "space-y-2",
+      "items-center"
+    );
 
     const addBookToReadButton = document.createElement("button");
     addBookToReadButton.textContent = "Ajouter à ma liste";
@@ -95,18 +101,18 @@ function displayBooks(books) {
       "font-semibold",
       "py-1",
       "px-4",
-      "rounded",
-      "add-book-button",
       "cursor-pointer"
     );
-    addBookToReadButton.addEventListener("click", () => {
+
+    addBookToReadButton.addEventListener("click", (event) => {
+      event.stopPropagation();
       moveToColumn("toRead", book);
       closeBookListModal();
     });
 
     buttonsContainer.appendChild(addBookToReadButton);
-    row.appendChild(buttonsContainer);
-    tableBody.appendChild(row);
+    bookItem.appendChild(buttonsContainer);
+    tableBody.appendChild(bookItem);
   });
 }
 
