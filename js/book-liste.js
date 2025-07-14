@@ -176,6 +176,10 @@ export function refreshColumns() {
   displayColumns();
 }
 
+export function refreshColumns() {
+  displayColumns();
+}
+
 async function init() {
   let books = await getAllBooks();
   const customBooks = loadFromStorage("customBooks");
