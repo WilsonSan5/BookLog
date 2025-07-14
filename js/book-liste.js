@@ -14,7 +14,6 @@ let searchTerm = "";
 const searchInputElement = document.getElementById("search-bar");
 searchInputElement.addEventListener("input", (event) => {
   searchTerm = event.target.value.toLowerCase();
-  console.log("Recherche en cours :", searchTerm);
   getAllBooks().then((books) => {
     const filteredBooks = books.filter((book) => {
       return (
@@ -171,6 +170,10 @@ function closeNewBookModalOnly() {
   
   if (modal) modal.remove();
   if (overlay) overlay.remove();
+}
+
+export function refreshColumns() {
+  displayColumns();
 }
 
 async function init() {

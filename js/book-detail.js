@@ -1,7 +1,19 @@
-import { moveToColumn } from "./book-columns.js";
+import { moveToColumn, displayColumns} from "./book-columns.js";
+import { renderFeedback, setupFeedbackHandlers } from "./book-feedback.js"; // <-- Import feedback modules
+import { refreshColumns } from "./book-liste.js";
 
-export function openBookDetailModal(book){
+let feedbackHtml = "";
+
+export function openBookDetailModal(book, columnId = null) {
     const modal = document.getElementById("book-detail-modal");
+    // Show feedback UI only if the book is in 'reading' or 'read' columns
+    const showFeedback = columnId === "reading" || columnId === "read";
+    // Render feedback UI if applicable
+    if (showFeedback) {
+        feedbackHtml = renderFeedback(book, handleFeedbackSave);
+    } else {
+        feedbackHtml = "Cette colonne ne permet pas de laisser des commentaires."; // No feedback UI for other columns
+    }
 
     const bookDetailContent = `
         <!-- Conteneur de la modale -->
@@ -39,6 +51,7 @@ export function openBookDetailModal(book){
                         <p class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Description</p>
                         <p class="text-gray-700 leading-relaxed">${book.description || "Aucune description disponible."}</p>
                     </div>
+                    ${feedbackHtml} <!-- Insert feedback UI here -->
                 </div>
             </div>
             
@@ -57,8 +70,6 @@ export function openBookDetailModal(book){
     
     // Ajouter la fonctionnalité du bouton de fermeture
     const closeButton = document.getElementById("close-button");
-    
-    
     const closeModal = () => {
         modal.style.display = "none";
         modal.className = ""; // Réinitialiser les classes lors de la fermeture
@@ -95,6 +106,11 @@ export function openBookDetailModal(book){
     
     // Afficher la modale
     modal.style.display = "flex";
+
+    // Setup feedback handlers if feedback UI is shown
+    const feedbackContainer = modal.querySelector('.book-feedback');
+    setupFeedbackHandlers(feedbackContainer, book, handleFeedbackSave);
+
 }
 
 // Fonction pour formater la date de publication
@@ -114,4 +130,11 @@ function formatPublicationDate(published) {
   
   // Si c'est juste une année (ancien format de l'API)
   return publishedStr;
+}
+
+function handleFeedbackSave(bookId, rating, comments) {
+    // Optionally show a notification or update UI
+    // For now, do nothing (feedback is already saved in localStorage)
+    displayColumns(); // Refresh columns to show updated feedback
+    console.log(`Feedback saved for book ${bookId}: Rating ${rating}, Comments: ${comments}`);
 }
