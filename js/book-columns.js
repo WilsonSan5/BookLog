@@ -1,5 +1,6 @@
 import { openBookDetailModal } from "./book-detail.js";
 import { saveToStorage } from "./book-storage.js";
+import { clearBookFeedback, getBookFeedback } from "./book-feedback-storage.js"; // Add this import
 
 let columns = [
   { id: "toRead", title: "A lire", books: [] },
@@ -20,7 +21,7 @@ function initializeColumns() {
   }
 }
 
-function displaylColumns() {
+export function displayColumns() {
   const columnsSection = document.getElementById("columns-section");
   columnsSection.innerHTML = ""; // Vider les colonnes existantes
   columns.forEach((column) => {
@@ -122,7 +123,7 @@ function displayBookItems(columnId) {
       // Ouvrir la modale seulement si on clique sur le titre (élément h3)
       if (e.target.tagName === "H3" || e.target.closest("h3")) {
         e.stopPropagation();
-        openBookDetailModal(book);
+        openBookDetailModal(book, columnId);
       }
     });
 
@@ -198,15 +199,36 @@ function displayBookItems(columnId) {
     removeButton.innerHTML = "❌";
     removeButton.onclick = () => {
       column.books = column.books.filter((b) => b !== book);
-      displaylColumns();
+      clearBookFeedback(book.id); // Clear feedback when removing book
+      displayColumns(); 
     };
 
     actionButtons.appendChild(removeButton);
+    const feedbackDiv = document.createElement("div");
+
+    // Feedback summary (only for reading and read columns)
+    if (columnId === "reading" || columnId === "read") {
+      const feedback = getBookFeedback(book.id);
+      if (feedback.rating > 0 || feedback.comments) {
+        
+        feedbackDiv.classList.add("mt-2", "text-sm", "text-yellow-600");
+        // Stars
+        if (feedback.rating > 0) {
+          feedbackDiv.innerHTML += `<span>${"★".repeat(feedback.rating)}${"☆".repeat(5-feedback.rating)}</span>`;
+        }
+        // Comment
+        if (feedback.comments) {
+          feedbackDiv.innerHTML += `<div class="text-gray-700 italic mt-1">${feedback.comments}</div>`;
+        }
+        
+      }
+    }
 
     bookItem.appendChild(titleElement);
     bookItem.appendChild(authorElement);
     bookItem.appendChild(pagesElement);
     bookItem.appendChild(actionButtons);
+    bookItem.appendChild(feedbackDiv);
     columnElement.appendChild(bookItem);
   });
 }
@@ -232,7 +254,7 @@ export function moveToColumn(columnId, book) {
       }
     });
     // Actualiser l'affichage de toutes les colonnes
-    displaylColumns();
+    displayColumns();
   }
   // Sauvegarder les colonnes mises à jour dans localStorage
   saveToStorage("columns", columns);
@@ -265,5 +287,5 @@ function initDragAndDrop() {
 }
 
 initializeColumns();
-displaylColumns();
+displayColumns();
 initDragAndDrop();
