@@ -1,8 +1,9 @@
 import { moveToColumn, displayColumns} from "./book-columns.js";
 import { renderFeedback, setupFeedbackHandlers } from "./book-feedback.js"; // <-- Import feedback modules
-import { refreshColumns } from "./book-liste.js";
 
 let feedbackHtml = "";
+
+const modalOverlay = document.getElementById("modal-overlay");
 
 export function openBookDetailModal(book, columnId = null) {
     const modal = document.getElementById("book-detail-modal");
@@ -75,16 +76,17 @@ export function openBookDetailModal(book, columnId = null) {
     `;
     
     // Définir les classes de la modale pour le fond et le positionnement
-    modal.className = "fixed inset-0 bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50 p-4";
+    // modal.className = "fixed inset-0 bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50 p-4";
     modal.innerHTML = bookDetailContent;
     
     // Ajouter la fonctionnalité du bouton de fermeture
     const closeButton = document.getElementById("close-button");
     const closeModal = () => {
         modal.style.display = "none";
-        modal.className = ""; // Réinitialiser les classes lors de la fermeture
         // Supprimer l'écouteur d'événement pour éviter les fuites mémoire
         document.removeEventListener('keydown', handleEscapeKey);
+        modalOverlay.style.display = "none";
+        modalOverlay.removeEventListener("click", closeModal);
     };
 
     // Ajouter l'écouteur d'événement pour le bouton "Ajouter à lire"
