@@ -1,11 +1,27 @@
-import { moveToColumn } from "./book-columns.js";
+import { moveToColumn, displayColumns} from "./book-columns.js";
+import { renderFeedback, setupFeedbackHandlers } from "./book-feedback.js"; // <-- Import feedback modules
 
-export function openBookDetailModal(book){
+let feedbackHtml = "";
+
+const modalOverlay = document.getElementById("modal-overlay");
+
+export function openBookDetailModal(book, columnId = null) {
     const modal = document.getElementById("book-detail-modal");
+    // Show feedback UI only if the book is in 'reading' or 'read' columns
+    const showFeedback = columnId === "reading" || columnId === "read";
+    // Render feedback UI if applicable
+    if (showFeedback) {
+        feedbackHtml = renderFeedback(book, handleFeedbackSave);
+    } else {
+        feedbackHtml = "Cette colonne ne permet pas de laisser des commentaires."; // No feedback UI for other columns
+    }
 
-    const bookDetailContent = `
+  modalOverlay.style.display = "block";
+  modalOverlay.addEventListener("click", () => {
+    closeModal();
+  });
+  const bookDetailContent = `
         <!-- Conteneur de la modale -->
-        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden transform transition-all">
             <!-- En-tête de la modale -->
             <div class="flex justify-between items-center p-6 border-b border-gray-200 bg-gray-50">
                 <h2 class="text-2xl font-bold text-gray-900">${book.title}</h2>
@@ -22,23 +38,32 @@ export function openBookDetailModal(book){
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Auteur</p>
-                            <p class="text-gray-900 font-medium">${book.author}</p>
+                            <p class="text-gray-900 font-medium">${
+                              book.author
+                            }</p>
                         </div>
                         <div>
                             <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Date de publication</p>
-                            <p class="text-gray-900 font-medium">${formatPublicationDate(book.published)}</p>
+                            <p class="text-gray-900 font-medium">${formatPublicationDate(
+                              book.published
+                            )}</p>
                         </div>
 
                         <div>
                             <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Pages</p>
-                            <p class="text-gray-900 font-medium">${book.pages}</p>
+                            <p class="text-gray-900 font-medium">${
+                              book.pages
+                            }</p>
                         </div>
                     </div>
                     
                     <div class="pt-4 border-t border-gray-200">
                         <p class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Description</p>
-                        <p class="text-gray-700 leading-relaxed">${book.description || "Aucune description disponible."}</p>
+                        <p class="text-gray-700 leading-relaxed">${
+                          book.description || "Aucune description disponible."
+                        }</p>
                     </div>
+                    ${feedbackHtml} <!-- Insert feedback UI here -->
                 </div>
             </div>
             
@@ -48,22 +73,20 @@ export function openBookDetailModal(book){
                     Ajouter à ma liste
                 </button>
             </div>
-        </div>
     `;
     
     // Définir les classes de la modale pour le fond et le positionnement
-    modal.className = "fixed inset-0 bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50 p-4";
+    // modal.className = "fixed inset-0 bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50 p-4";
     modal.innerHTML = bookDetailContent;
     
     // Ajouter la fonctionnalité du bouton de fermeture
     const closeButton = document.getElementById("close-button");
-    
-    
     const closeModal = () => {
         modal.style.display = "none";
-        modal.className = ""; // Réinitialiser les classes lors de la fermeture
         // Supprimer l'écouteur d'événement pour éviter les fuites mémoire
         document.removeEventListener('keydown', handleEscapeKey);
+        modalOverlay.style.display = "none";
+        modalOverlay.removeEventListener("click", closeModal);
     };
 
     // Ajouter l'écouteur d'événement pour le bouton "Ajouter à lire"
@@ -95,23 +118,35 @@ export function openBookDetailModal(book){
     
     // Afficher la modale
     modal.style.display = "flex";
+
+    // Setup feedback handlers if feedback UI is shown
+    const feedbackContainer = modal.querySelector('.book-feedback');
+    setupFeedbackHandlers(feedbackContainer, book, handleFeedbackSave);
+
 }
 
 // Fonction pour formater la date de publication
 function formatPublicationDate(published) {
   // Vérifier que published existe et le convertir en string
   if (!published) {
-    return 'Non spécifiée';
+    return "Non spécifiée";
   }
-  
+
   // Convertir en string pour pouvoir utiliser includes
   const publishedStr = String(published);
-  
+
   // Si la date est au format DD/MM/YYYY (nouveau format)
-  if (publishedStr.includes('/')) {
+  if (publishedStr.includes("/")) {
     return publishedStr;
   }
-  
+
   // Si c'est juste une année (ancien format de l'API)
   return publishedStr;
+}
+
+function handleFeedbackSave(bookId, rating, comments) {
+    // Optionally show a notification or update UI
+    // For now, do nothing (feedback is already saved in localStorage)
+    displayColumns(); // Refresh columns to show updated feedback
+    console.log(`Feedback saved for book ${bookId}: Rating ${rating}, Comments: ${comments}`);
 }

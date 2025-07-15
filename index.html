@@ -27,8 +27,8 @@
       </div>
     </div>
 
-    <!-- bookList Modal -->
-    <div id="book-list-modal" class="fixed  modal inset-0 bg-white shadow-lg rounded-lg p-6 max-w-4xl mx-auto top-4 z-50">
+    <!-- Book List Modal -->
+    <div id="book-list-modal" class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden transform transition-all ">
       <div class="mb-4">
         <input
           class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -43,22 +43,116 @@
           <ul id="books-table-body" class="bg-white">
             <!-- Les livres seront insérés ici -->
           </ul>
+            <div id="book-list-loader" class="flex justify-center items-center py-6">
+            <div class="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500 border-solid"></div>
+            </div>
         </table>
       </div>
     </div>
 
-    <div id="modal-overlay" class="fixed inset-0 bg-opacity-20 hidden"></div>
-
-    <div id="book-detail-modal" class="fixed modal inset-0 bg-white shadow-lg rounded-lg p-6 max-w-4xl mx-auto mt-20 z-50">
-      <button id="close-book-detail-modal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800">
+    <!-- New Book Modal -->
+    <div id="new-book-modal" class="fixed h-min inset-0 bg-white shadow-lg rounded-lg p-6 max-w-4xl mx-auto top-30 z-50 hidden">
+      <button id="close-new-book-modal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl">
         &times;
       </button>
-      <div id="book-detail-content" class="space-y-4">
-        <!-- Book details will be inserted here -->
+      <div class="space-y-4">
+        <h2 class="text-3xl font-semibold mb-4">Ajouter un nouveau livre</h2>
+        <form id="new-book-form" class="space-y-4">
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="book-title">
+              Titre
+            </label>
+            <input class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   id="book-title" type="text" placeholder="Titre du livre" required>
+          </div>
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="book-author">
+              Auteur
+            </label>
+            <input class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   id="book-author" type="text" placeholder="Nom de l'auteur" required>
+          </div>
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2">
+              Date de publication
+            </label>
+            <div class="grid grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs text-gray-500 mb-1">Jour</label>
+                <select class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        id="book-day" required>
+                  <option value="">Jour</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs text-gray-500 mb-1">Mois</label>
+                <select class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        id="book-month" required>
+                  <option value="">Mois</option>
+                  <option value="01">Janvier</option>
+                  <option value="02">Février</option>
+                  <option value="03">Mars</option>
+                  <option value="04">Avril</option>
+                  <option value="05">Mai</option>
+                  <option value="06">Juin</option>
+                  <option value="07">Juillet</option>
+                  <option value="08">Août</option>
+                  <option value="09">Septembre</option>
+                  <option value="10">Octobre</option>
+                  <option value="11">Novembre</option>
+                  <option value="12">Décembre</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs text-gray-500 mb-1">Année</label>
+                <select class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        id="book-year" required>
+                  <option value="">Année</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="book-pages">
+              Nombre de pages
+            </label>
+            <input class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   id="book-pages" type="number" placeholder="Nombre de pages" required>
+          </div>
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="book-description">
+              Description
+            </label>
+            <textarea class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      id="book-description" placeholder="Description du livre" rows="3" required></textarea>
+          </div>
+          <div class="flex items-center justify-between mt-6">
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    type="submit">
+              Ajouter
+            </button>
+            <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    type="button" id="cancel-new-book">
+              Annuler
+            </button>
+          </div>
+        </form>
       </div>
     </div>
 
-
+     <!-- Book Detail Modal -->
+     <div id="book-detail-modal" class="fixed modal inset-0 bg-white shadow-lg rounded-lg max-w-4xl mx-auto z-50 hidden flex flex-col h-min">
+       <button id="close-book-detail-modal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800">
+         &times;
+        </button>
+        <div id="book-detail-content" class="space-y-4">
+          <!-- Book details will be inserted here -->
+        </div>
+      </div>
+      
+      
+      <!-- Background overlay for modal -->
+     <div id="modal-overlay" class="fixed inset-0 bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-0 p-4 hidden"></div>
 
     <script src="js/main.js" type="module"></script>
   </body>
