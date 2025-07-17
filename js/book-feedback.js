@@ -1,5 +1,12 @@
 import { getBookFeedback, setBookFeedback } from './book-feedback-storage.js';
 
+/**
+ * Renders the feedback UI for a given book, including star rating and comment input.
+ *
+ * @param {Object} book - The book object to render feedback for.
+ * @returns {string} The HTML string for the feedback UI.
+ */
+
 export function renderFeedback(book) {
     // if (book.column !== 'reading' && book.column !== 'read') return '';
     const feedback = getBookFeedback(book.id);
@@ -18,6 +25,15 @@ export function renderFeedback(book) {
     `;
 }
 
+
+/**
+ * setups the feedback section for a given book, including star rating and comment input.
+ *
+ * @param {Object} book - The book object to render feedback for.
+ * @param {string|number} book.id - The unique identifier of the book.
+ * @param {callback} onSave - Callback function to call when feedback is saved.
+ * @returns {string} The HTML string for the feedback UI.
+ */
 export function setupFeedbackHandlers(container, book, onSave) {
     if (!container) return;
     // Star click handler

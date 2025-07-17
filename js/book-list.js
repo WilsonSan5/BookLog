@@ -4,6 +4,7 @@ import { getAllBooks } from "./book-api.js";
 import { formatDate } from "./book-notification.js";
 import { openNewBookModal } from "./book-new.js";
 import { loadFromStorage } from "./book-storage.js";
+import { showNotification } from "./book-notification.js";
 
 const modalOverlay = document.getElementById("modal-overlay");
 
@@ -107,6 +108,17 @@ function displayBooks(books) {
     addBookToReadButton.addEventListener("click", (event) => {
       event.stopPropagation();
       moveToColumn("toRead", book);
+
+      // Here we can show a notification or update the UI
+      showNotification(`"${book.title}" a été ajouté à votre liste "À lire"`, "success");
+
+      // Filter out the book that have already been added to one of the columns from the book's list.
+      const bookIndex = books.findIndex((b) => b.id === book.id);
+      if (bookIndex > -1) {
+        books.splice(bookIndex, 1);
+      }
+      displayBooks(books);
+      // Close the modal after adding the book
       closeBookListModal();
     });
 

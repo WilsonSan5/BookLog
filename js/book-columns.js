@@ -1,6 +1,7 @@
 import { openBookDetailModal } from "./book-detail.js";
 import { saveToStorage } from "./book-storage.js";
 import { clearBookFeedback, getBookFeedback } from "./book-feedback-storage.js"; // Add this import
+import { showNotification } from "./book-notification.js";
 
 let columns = [
   { id: "toRead", title: "A lire", books: [] },
@@ -162,14 +163,14 @@ function displayBookItems(columnId) {
     );
     authorElement.innerHTML = book.author;
 
-      const pagesElement = document.createElement("p");
-      pagesElement.classList.add(
-        "text-xs",
-        "text-gray-500",
-        "flex",
-        "items-center"
-      );
-      pagesElement.innerHTML = `
+    const pagesElement = document.createElement("p");
+    pagesElement.classList.add(
+      "text-xs",
+      "text-gray-500",
+      "flex",
+      "items-center"
+    );
+    pagesElement.innerHTML = `
           ${book.pages} pages
         `;
 
@@ -200,7 +201,8 @@ function displayBookItems(columnId) {
     removeButton.onclick = () => {
       column.books = column.books.filter((b) => b !== book);
       clearBookFeedback(book.id); // Clear feedback when removing book
-      displayColumns(); 
+      showNotification(`"${book.title}" a été retiré de la liste`, "success");
+      displayColumns();
     };
 
     actionButtons.appendChild(removeButton);
@@ -210,17 +212,17 @@ function displayBookItems(columnId) {
     if (columnId === "reading" || columnId === "read") {
       const feedback = getBookFeedback(book.id);
       if (feedback.rating > 0 || feedback.comments) {
-        
         feedbackDiv.classList.add("mt-2", "text-sm", "text-yellow-600");
         // Stars
         if (feedback.rating > 0) {
-          feedbackDiv.innerHTML += `<span>${"★".repeat(feedback.rating)}${"☆".repeat(5-feedback.rating)}</span>`;
+          feedbackDiv.innerHTML += `<span>${"★".repeat(
+            feedback.rating
+          )}${"☆".repeat(5 - feedback.rating)}</span>`;
         }
         // Comment
         if (feedback.comments) {
           feedbackDiv.innerHTML += `<div class="text-gray-700 italic mt-1">${feedback.comments}</div>`;
         }
-        
       }
     }
 
