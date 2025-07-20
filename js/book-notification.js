@@ -2,7 +2,7 @@ import { loadFromStorage, saveToStorage } from './book-storage.js';
 
 export function showNotification(message, type = "success") {
   const notification = document.createElement("div");
-  notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transform transition-all duration-300 ${
+  notification.className = `absolute top-4 right-4 z-100 p-4 rounded-lg shadow-lg max-w-sm transform transition-all duration-300 ${
     type === "success" 
       ? "bg-green-500 text-white" 
       : "bg-red-500 text-white"
