@@ -93,7 +93,7 @@ export function openBookDetailModal(book, columnId = null) {
                             <button id="add-to-read-button" class="bg-blue-400 hover:bg-blue-500 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                             <span class="text-sm">${
                               columnId === "toRead"
-                                ? "Ajouter à ma liste"
+                                ? "Fermer"
                                 : 'Déplacer vers "À lire"'
                             }</span>
                             </button>

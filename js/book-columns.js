@@ -9,6 +9,8 @@ let columns = [
   { id: "read", title: "Lu", books: [] },
 ];
 
+let booksIdInColumns = []
+
 let draggedBook = null;
 
 function initializeColumns() {
@@ -260,6 +262,21 @@ export function moveToColumn(columnId, book) {
   }
   // Sauvegarder les colonnes mises à jour dans localStorage
   saveToStorage("columns", columns);
+}
+
+export function getAllBooksInColumns() {
+  booksIdInColumns = [];
+  columns.forEach(column => {
+    column.books.forEach(book => {
+      booksIdInColumns.push(book.id);
+    });
+  });
+  return booksIdInColumns;
+}
+
+export function bookExistsInColumns(book) {
+  booksIdInColumns = getAllBooksInColumns();
+  return booksIdInColumns.includes(book.id);
 }
 
 function initDragAndDrop() {

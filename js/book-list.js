@@ -5,6 +5,7 @@ import { formatDate } from "./book-notification.js";
 import { openNewBookModal } from "./book-new.js";
 import { loadFromStorage } from "./book-storage.js";
 import { showNotification } from "./book-notification.js";
+import { getAllBooksInColumns } from "./book-columns.js";
 
 const modalOverlay = document.getElementById("modal-overlay");
 
@@ -56,6 +57,17 @@ export function openBookListModal() {
 function displayBooks(books) {
   const tableBody = document.getElementById("books-table-body");
   tableBody.innerHTML = "";
+
+ const  booksIdInColumns = getAllBooksInColumns()
+ 
+
+ // Supprimer de la liste les livres déjà présents dans les colonnes
+  books = books.filter((book) => {
+    console.log("Books already in columns:", booksIdInColumns);
+     console.log("Checking book:", book.id);
+     return !booksIdInColumns.includes(book.id);
+    })
+
   books.forEach((book) => {
     const bookItem = document.createElement("div");
     bookItem.classList.add(
@@ -112,11 +124,6 @@ function displayBooks(books) {
       // Here we can show a notification or update the UI
       showNotification(`"${book.title}" a été ajouté à votre liste "À lire"`, "success");
 
-      // Filter out the book that have already been added to one of the columns from the book's list.
-      const bookIndex = books.findIndex((b) => b.id === book.id);
-      if (bookIndex > -1) {
-        books.splice(bookIndex, 1);
-      }
       displayBooks(books);
       // Close the modal after adding the book
       closeBookListModal();
