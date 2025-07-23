@@ -1,152 +1,222 @@
-import { moveToColumn, displayColumns} from "./book-columns.js";
-import { renderFeedback, setupFeedbackHandlers } from "./book-feedback.js"; // <-- Import feedback modules
+import { moveBookToColumn, displayColumns } from "./book-columns.js";
+import { renderFeedback, setupFeedbackHandlers } from "./book-feedback.js";
+import { displayNotification } from "./book-notification.js";
 
-let feedbackHtml = "";
-
+// Cached DOM refs
 const modalOverlay = document.getElementById("modal-overlay");
+const modal = document.getElementById("book-detail-modal");
 
-export function openBookDetailModal(book, columnId = null) {
-    const modal = document.getElementById("book-detail-modal");
-    // Show feedback UI only if the book is in 'reading' or 'read' columns
-    const showFeedback = columnId === "reading" || columnId === "read";
-    // Render feedback UI if applicable
-    if (showFeedback) {
-        feedbackHtml = renderFeedback(book, handleFeedbackSave);
-    } else {
-        feedbackHtml = "Cette colonne ne permet pas de laisser des commentaires."; // No feedback UI for other columns
-    }
+// Global state
+let currentBook = null;
+let currentColumnId = null;
 
-  modalOverlay.style.display = "block";
-  modalOverlay.addEventListener("click", () => {
-    closeModal();
-  });
-  const bookDetailContent = `
-        <!-- Conteneur de la modale -->
-            <!-- En-tête de la modale -->
-            <div class="flex justify-between items-center p-6 border-b border-gray-200 bg-gray-50">
-                <h2 class="text-2xl font-bold text-gray-900">${book.title}</h2>
-                <button id="close-button" class="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            
-            <!-- Corps de la modale -->
-            <div class="p-6 overflow-y-auto max-h-[60vh]">
-                <div class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Auteur</p>
-                            <p class="text-gray-900 font-medium">${
-                              book.author
-                            }</p>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Date de publication</p>
-                            <p class="text-gray-900 font-medium">${formatPublicationDate(
-                              book.published
-                            )}</p>
-                        </div>
+// Small utilities functions
+const isFeedbackColumn = (col) => col === "reading" || col === "read";
 
-                        <div>
-                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Pages</p>
-                            <p class="text-gray-900 font-medium">${
-                              book.pages
-                            }</p>
-                        </div>
-                    </div>
-                    
-                    <div class="pt-4 border-t border-gray-200">
-                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Description</p>
-                        <p class="text-gray-700 leading-relaxed">${
-                          book.description || "Aucune description disponible."
-                        }</p>
-                    </div>
-                    ${feedbackHtml} <!-- Insert feedback UI here -->
-                </div>
-            </div>
-            
-            <!-- Pied de page de la modale -->
-            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end">
-                <button id="add-to-read-button" class="bg-blue-400 hover:bg-blue-500 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                    Ajouter à ma liste
-                </button>
-            </div>
-    `;
-    
-    // Définir les classes de la modale pour le fond et le positionnement
-    // modal.className = "fixed inset-0 bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50 p-4";
-    modal.innerHTML = bookDetailContent;
-    
-    // Ajouter la fonctionnalité du bouton de fermeture
-    const closeButton = document.getElementById("close-button");
-    const closeModal = () => {
-        modal.style.display = "none";
-        // Supprimer l'écouteur d'événement pour éviter les fuites mémoire
-        document.removeEventListener('keydown', handleEscapeKey);
-        modalOverlay.style.display = "none";
-        modalOverlay.removeEventListener("click", closeModal);
-    };
-
-    // Ajouter l'écouteur d'événement pour le bouton "Ajouter à lire"
-    const addToReadButton = document.getElementById("add-to-read-button");
-    addToReadButton.onclick = () => {
-        // Logique pour ajouter le livre à la colonne "À lire"
-        moveToColumn("toRead", book);
-        closeModal();
-    }
-    
-    // Gérer la touche Échap
-    const handleEscapeKey = (e) => {
-        if (e.key === 'Escape') {
-            closeModal();
-        }
-    };
-    
-    closeButton.onclick = closeModal;
-    
-    // Fermer en cliquant sur l'arrière-plan (clic en dehors du contenu de la modale)
-    modal.onclick = (e) => {
-        if (e.target === modal) {
-            closeModal();
-        }
-    };
-    
-    // Fermer avec la touche Échap
-    document.addEventListener('keydown', handleEscapeKey);
-    
-    // Afficher la modale
-    modal.style.display = "flex";
-
-    // Setup feedback handlers if feedback UI is shown
-    const feedbackContainer = modal.querySelector('.book-feedback');
-    setupFeedbackHandlers(feedbackContainer, book, handleFeedbackSave);
-
+function formatPublicationDate(published) {
+  if (!published) return "Non spécifiée";
+  const s = String(published);
+  return s.includes("/") ? s : s; // keep as-is for now (simple school-safe)
 }
 
-// Fonction pour formater la date de publication
-function formatPublicationDate(published) {
-  // Vérifier que published existe et le convertir en string
-  if (!published) {
-    return "Non spécifiée";
+// Optional: escape text if you ever display untrusted user input
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+// Template builders (return strings)
+function buildModalHeader(book) {
+  return `
+    <div class="flex justify-between items-center p-6 border-b border-gray-200 bg-gray-50">
+      <h2 class="text-2xl font-bold text-gray-900">${escapeHtml(
+        book.title
+      )}</h2>
+      <button type="button" data-action="close" class="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100" aria-label="Fermer">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>`;
+}
+
+function buildModalBody(book, feedbackHtml) {
+  // You can keep your grid + description markup; shortened here.
+  return `
+    <div class="p-6 overflow-y-auto max-h-[60vh]">
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Auteur</p>
+            <p class="text-gray-900 font-medium">${escapeHtml(
+              book.author ?? "Inconnu"
+            )}</p>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Date de publication</p>
+            <p class="text-gray-900 font-medium">${formatPublicationDate(
+              book.published
+            )}</p>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Pages</p>
+            <p class="text-gray-900 font-medium">${book.pages ?? "?"}</p>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-gray-200">
+          <p class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Description</p>
+          <p class="text-gray-700 leading-relaxed">
+            ${escapeHtml(book.description || "Aucune description disponible.")}
+          </p>
+        </div>
+
+        <div class="book-feedback mt-4">
+          ${feedbackHtml}
+        </div>
+      </div>
+    </div>`;
+}
+
+function buildModalFooter(columnId) {
+  // Primary button: either close (if already "toRead") or move to toRead
+  const primaryAction = columnId === "toRead" ? "close" : "toRead";
+
+  // Secondary button: depends on current column
+  let secondaryBtn = "";
+  if (columnId === "reading") {
+    secondaryBtn = `
+      <button type="button" data-action="move" data-move-to="read"
+        class="ml-2 bg-blue-400 hover:bg-blue-500 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        <span class="text-sm">Déplacer vers "Lu"</span>
+      </button>`;
+  } else if (columnId === "read") {
+    secondaryBtn = `
+      <button type="button" data-action="move" data-move-to="reading"
+        class="ml-2 bg-blue-400 hover:bg-blue-500 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        <span class="text-sm">Déplacer vers "En cours"</span>
+      </button>`;
   }
 
-  // Convertir en string pour pouvoir utiliser includes
-  const publishedStr = String(published);
+  return `
+    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end">
+      <button type="button" data-action="${primaryAction}"
+        class="bg-blue-400 hover:bg-blue-500 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        <span class="text-sm">${
+          primaryAction === "close" ? "Fermer" : 'Déplacer vers "À lire"'
+        }</span>
+      </button>
+      ${secondaryBtn}
+    </div>`;
+}
 
-  // Si la date est au format DD/MM/YYYY (nouveau format)
-  if (publishedStr.includes("/")) {
-    return publishedStr;
+function buildModalHtml(book, columnId) {
+  const feedbackHtml = isFeedbackColumn(columnId)
+    ? renderFeedback(book, handleFeedbackSave)
+    : `<p class="text-sm italic text-gray-500">Cette colonne ne permet pas de laisser des commentaires.</p>`;
+  return `
+    <!-- wrapper inside modal -->
+    <div class="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden" role="dialog" aria-modal="true">
+      ${buildModalHeader(book)}
+      ${buildModalBody(book, feedbackHtml)}
+      ${buildModalFooter(columnId)}
+    </div>`;
+}
+
+// Event handlers
+function onEscKey(e) {
+  if (e.key === "Escape") closeModal();
+}
+
+function onOverlayClick(e) {
+  // If click is outside inner content, close
+  if (e.target === modalOverlay) closeModal();
+}
+
+// Click delegation inside modal
+function onModalClick(e) {
+  const btn = e.target.closest("[data-action]");
+  if (!btn) return;
+
+  const action = btn.dataset.action;
+  if (action === "close") {
+    closeModal();
+    return;
   }
 
-  // Si c'est juste une année (ancien format de l'API)
-  return publishedStr;
+  if (action === "toRead") {
+    moveBookToColumn("toRead", currentBook);
+    closeModal();
+    return;
+  }
+
+  if (action === "move") {
+    const newCol = btn.dataset.moveTo;
+    handleColumnChange(newCol, currentBook);
+    closeModal();
+  }
+}
+
+// This function opens the modal with the book details
+// and sets up the feedback handlers if applicable.
+
+export function openBookDetailModal(book, columnId = null) {
+  currentBook = book;
+  currentColumnId = columnId;
+  // Render content
+  modal.innerHTML = buildModalHtml(book, columnId);
+  // Show
+  modalOverlay.style.display = "block";
+  modal.style.display = "flex";
+  // Listeners (idempotent: attach once if not already)
+  addGlobalModalListeners();
+
+  // Feedback wiring (after DOM inserted)
+  if (isFeedbackColumn(columnId)) {
+    const feedbackContainer = modal.querySelector(".book-feedback");
+    setupFeedbackHandlers(feedbackContainer, book, handleFeedbackSave);
+  }
+}
+
+function closeModal() {
+  modal.style.display = "none";
+  modalOverlay.style.display = "none";
+  removeGlobalModalListeners();
+  currentBook = null;
+  currentColumnId = null;
+}
+
+// Listener management helpers
+// (These guard against double-binding if open called multiple times.)
+let listenersAttached = false;
+function addGlobalModalListeners() {
+  if (listenersAttached) return;
+  document.addEventListener("keydown", onEscKey);
+  modalOverlay.addEventListener("click", onOverlayClick);
+  modal.addEventListener("click", onModalClick);
+  listenersAttached = true;
+}
+function removeGlobalModalListeners() {
+  if (!listenersAttached) return;
+  document.removeEventListener("keydown", onEscKey);
+  modalOverlay.removeEventListener("click", onOverlayClick);
+  modal.removeEventListener("click", onModalClick);
+  listenersAttached = false;
+}
+
+// Column change + feedback save
+function handleColumnChange(newColumnId, currentBook) {
+  moveBookToColumn(newColumnId, currentBook);
 }
 
 function handleFeedbackSave(bookId, rating, comments) {
-    // Optionally show a notification or update UI
-    // For now, do nothing (feedback is already saved in localStorage)
-    displayColumns(); // Refresh columns to show updated feedback
-    console.log(`Feedback saved for book ${bookId}: Rating ${rating}, Comments: ${comments}`);
+  displayColumns(); // refresh
+  displayNotification(
+    `Feedback enregistré pour le livre ${currentBook?.title ?? ""}`,
+    "success"
+  );
+  closeModal();
 }

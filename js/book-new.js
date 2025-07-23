@@ -1,5 +1,5 @@
-import { moveToColumn } from "./book-columns.js";
-import { showNotification } from "./book-notification.js";
+import { moveBookToColumn } from "./book-columns.js";
+import { displayNotification } from "./book-notification.js";
 import { openBookListModal } from "./book-list.js";
 
 const modalOverlay = document.getElementById("modal-overlay");
@@ -82,10 +82,11 @@ export function getFormData() {
 }
 
 export function createBookFromForm(formData) {
+  const generatedId = `custom-${Date.now()}`;
   const published = `${formData.day}/${formData.month}/${formData.year}`;
 
   return {
-    id: Date.now(),
+    id: generatedId,
     title: formData.title,
     author: formData.author,
     published,
@@ -102,15 +103,15 @@ async function handleNewBookSubmit(event) {
   const newBook = createBookFromForm(formData);
 
   try {
-    moveToColumn("toRead", newBook);
-    showNotification(
+    moveBookToColumn("toRead", newBook);
+    displayNotification(
       `"${formData.title}" a été ajouté à votre liste "À lire" !`,
       "success"
     );
     closeNewBookModalOnly();
   } catch (error) {
     console.error("Erreur:", error);
-    showNotification(
+    displayNotification(
       "Erreur lors de l'ajout du livre. Veuillez réessayer.",
       "error"
     );
