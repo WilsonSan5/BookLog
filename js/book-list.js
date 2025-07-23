@@ -19,6 +19,10 @@ const searchInputElement = document.getElementById("search-bar");
 searchInputElement.addEventListener("input", (event) => {
   searchTerm = event.target.value.toLowerCase();
   console.log("Recherche en cours :", searchTerm);
+  
+  // Afficher le loader pendant la recherche
+  showLoader();
+  
   getAllBooks().then((books) => {
     const filteredBooks = books.filter((book) => {
       return (
@@ -27,8 +31,41 @@ searchInputElement.addEventListener("input", (event) => {
       );
     });
     displayBooks(filteredBooks);
+    // Masquer le loader après l'affichage
+    hideLoader();
+  }).catch((error) => {
+    console.error("Erreur lors de la recherche :", error);
+    hideLoader();
   });
 });
+
+// Fonction pour afficher le loader
+function showLoader() {
+  const loader = document.getElementById("book-list-loader");
+  const tableBody = document.getElementById("books-table-body");
+  
+  if (loader) {
+    loader.style.display = "flex";
+  }
+  
+  if (tableBody) {
+    tableBody.style.display = "none";
+  }
+}
+
+// Fonction pour masquer le loader
+function hideLoader() {
+  const loader = document.getElementById("book-list-loader");
+  const tableBody = document.getElementById("books-table-body");
+  
+  if (loader) {
+    loader.style.display = "none";
+  }
+  
+  if (tableBody) {
+    tableBody.style.display = "block";
+  }
+}
 
 export function openBookListModal() {
   const modal = document.getElementById("book-list-modal");
@@ -49,8 +86,16 @@ export function openBookListModal() {
     openNewBookModal();
   });
 
+  // Afficher le loader au début du chargement
+  showLoader();
+
   getAllBooks().then((books) => {
     displayBooks(books);
+    // Masquer le loader après le chargement
+    hideLoader();
+  }).catch((error) => {
+    console.error("Erreur lors du chargement des livres :", error);
+    hideLoader();
   });
 }
 
@@ -58,15 +103,14 @@ function displayBooks(books) {
   const tableBody = document.getElementById("books-table-body");
   tableBody.innerHTML = "";
 
- const  booksIdInColumns = getAllBooksInColumns()
- 
+  const booksIdInColumns = getAllBooksInColumns();
 
- // Supprimer de la liste les livres déjà présents dans les colonnes
+  // Supprimer de la liste les livres déjà présents dans les colonnes
   books = books.filter((book) => {
-    console.log("Books already in columns:", booksIdInColumns);
-     console.log("Checking book:", book.id);
-     return !booksIdInColumns.includes(book.id);
-    })
+    console.log("Livres déjà dans les colonnes:", booksIdInColumns);
+    console.log("Vérification du livre:", book.id);
+    return !booksIdInColumns.includes(book.id);
+  });
 
   books.forEach((book) => {
     const bookItem = document.createElement("div");
@@ -121,11 +165,11 @@ function displayBooks(books) {
       event.stopPropagation();
       moveToColumn("toRead", book);
 
-      // Here we can show a notification or update the UI
+      // Afficher une notification
       showNotification(`"${book.title}" a été ajouté à votre liste "À lire"`, "success");
 
       displayBooks(books);
-      // Close the modal after adding the book
+      // Fermer la modale après avoir ajouté le livre
       closeBookListModal();
     });
 
@@ -143,12 +187,22 @@ function closeBookListModal() {
 }
 
 async function init() {
-  let books = await getAllBooks();
-  const customBooks = loadFromStorage("customBooks");
-  if (customBooks && customBooks.length > 0) {
-    books.push(...customBooks);
+  // Afficher le loader au début de l'initialisation
+  showLoader();
+  
+  try {
+    let books = await getAllBooks();
+    const customBooks = loadFromStorage("customBooks");
+    if (customBooks && customBooks.length > 0) {
+      books.push(...customBooks);
+    }
+    displayBooks(books);
+  } catch (error) {
+    console.error("Erreur lors de l'initialisation :", error);
+  } finally {
+    // Masquer le loader dans tous les cas
+    hideLoader();
   }
-  displayBooks(books);
 }
 
 init();

@@ -42,9 +42,8 @@ export function openBookDetailModal(book, columnId = null) {
             <!-- Conteneur de la modale -->
                     <!-- En-tête de la modale -->
                     <div class="flex justify-between items-center p-6 border-b border-gray-200 bg-gray-50">
-                            <h2 class="text-2xl font-bold text-gray-900">${
-                              book.title
-                            }</h2>
+                            <h2 class="text-2xl font-bold text-gray-900">${book.title
+    }</h2>
                             <button id="close-button" class="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1 rounded-full hover:bg-gray-100">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -58,31 +57,28 @@ export function openBookDetailModal(book, columnId = null) {
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                     <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Auteur</p>
-                                                    <p class="text-gray-900 font-medium">${
-                                                      book.author
-                                                    }</p>
+                                                    <p class="text-gray-900 font-medium">${book.author
+    }</p>
                                             </div>
                                             <div>
                                                     <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Date de publication</p>
                                                     <p class="text-gray-900 font-medium">${formatPublicationDate(
-                                                      book.published
-                                                    )}</p>
+      book.published
+    )}</p>
                                             </div>
 
                                             <div>
                                                     <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Pages</p>
-                                                    <p class="text-gray-900 font-medium">${
-                                                      book.pages
-                                                    }</p>
+                                                    <p class="text-gray-900 font-medium">${book.pages
+    }</p>
                                             </div>
                                     </div>
                                     
                                     <div class="pt-4 border-t border-gray-200">
                                             <p class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Description</p>
-                                            <p class="text-gray-700 leading-relaxed">${
-                                              book.description ||
-                                              "Aucune description disponible."
-                                            }</p>
+                                            <p class="text-gray-700 leading-relaxed">${book.description ||
+    "Aucune description disponible."
+    }</p>
                                     </div>
                                     ${feedbackHtml} <!-- Insert feedback UI here -->
                             </div>
@@ -90,11 +86,8 @@ export function openBookDetailModal(book, columnId = null) {
                     
                     <!-- Pied de page de la modale -->
                     <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end">
-                            <button id="add-to-read-button" class="bg-blue-400 hover:bg-blue-500 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                            <span class="text-sm">${
-                              columnId === "toRead"
-                                ? "Fermer"
-                                : 'Déplacer vers "À lire"'
+                            <button id="move-button" class="bg-blue-400 hover:bg-blue-500 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            <span class="text-sm">
                             }</span>
                             </button>
                     </div>
@@ -107,12 +100,21 @@ export function openBookDetailModal(book, columnId = null) {
   // Ajouter la fonctionnalité du bouton de fermeture
   const closeButton = document.getElementById("close-button");
 
-  // Ajouter l'écouteur d'événement pour le bouton "Ajouter à lire"
-  const addToReadButton = document.getElementById("add-to-read-button");
-  addToReadButton.onclick = () => {
-    // Logique pour ajouter le livre à la colonne "À lire"
+  // Ajouter l'écouteur d'événement pour le bouton "En cours de lecture"
+  const moveButton = document.getElementById("move-button");
+  if (columnId == "toRead") {
+    moveButton.textContent = "En cours de lecture";
+  }
+  else if (columnId == "reading") {
+    moveButton.textContent = "Déjà lu";
+  } else {
+    moveButton.textContent = "Fermer";
+  }
+  
+  moveButton.onclick = () => {
+    // Logique pour ajouter le livre à la colonne "En cours de lecture"
     console.log(columnId);
-    moveToColumn("toRead", book);
+    moveToColumn("reading", book);
     closeModal();
   };
 
