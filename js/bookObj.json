@@ -1,0 +1,228 @@
+{
+  "books": [
+    {
+      "id": 1,
+      "title": "Clean Code",
+      "author": "Robert C. Martin",
+      "year": 2008,
+      "genre": "Programming",
+      "read": true
+    },
+    {
+      "id": 2,
+      "title": "JavaScript: The Good Parts",
+      "author": "Douglas Crockford",
+      "year": 2008,
+      "genre": "Programming",
+      "read": false
+    },
+    {
+      "id": 3,
+      "title": "You Don't Know JS",
+      "author": "Kyle Simpson",
+      "year": 2015,
+      "genre": "Programming",
+      "read": true
+    },
+    {
+      "id": 4,
+      "title": "The Pragmatic Programmer",
+      "author": "Andrew Hunt, David Thomas",
+      "year": 1999,
+      "genre": "Programming",
+      "read": true
+    },
+    {
+      "id": 5,
+      "title": "Refactoring",
+      "author": "Martin Fowler",
+      "year": 1999,
+      "genre": "Programming",
+      "read": false
+    },
+    {
+      "id": 6,
+      "title": "Design Patterns",
+      "author": "Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides",
+      "year": 1994,
+      "genre": "Programming",
+      "read": true
+    },
+    {
+      "id": 7,
+      "title": "Effective Java",
+      "author": "Joshua Bloch",
+      "year": 2001,
+      "genre": "Programming",
+      "read": false
+    },
+    {
+      "id": 8,
+      "title": "Code Complete",
+      "author": "Steve McConnell",
+      "year": 2004,
+      "genre": "Programming",
+      "read": true
+    },
+    {
+      "id": 9,
+      "title": "Introduction to Algorithms",
+      "author": "Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, Clifford Stein",
+      "year": 2009,
+      "genre": "Programming",
+      "read": false
+    },
+    {
+      "id": 10,
+      "title": "Structure and Interpretation of Computer Programs",
+      "author": "Harold Abelson, Gerald Jay Sussman",
+      "year": 1996,
+      "genre": "Programming",
+      "read": true
+    },
+    {
+      "id": 11,
+      "title": "Working Effectively with Legacy Code",
+      "author": "Michael Feathers",
+      "year": 2004,
+      "genre": "Programming",
+      "read": false
+    },
+    {
+      "id": 12,
+      "title": "The Mythical Man-Month",
+      "author": "Frederick P. Brooks Jr.",
+      "year": 1975,
+      "genre": "Programming",
+      "read": true
+    },
+    {
+      "id": 13,
+      "title": "Head First Design Patterns",
+      "author": "Eric Freeman, Bert Bates, Kathy Sierra, Elisabeth Robson",
+      "year": 2004,
+      "genre": "Programming",
+      "read": false
+    },
+    {
+      "id": 14,
+      "title": "Programming Pearls",
+      "author": "Jon Bentley",
+      "year": 1986,
+      "genre": "Programming",
+      "read": true
+    },
+    {
+      "id": 15,
+      "title": "Test Driven Development: By Example",
+      "author": "Kent Beck",
+      "year": 2002,
+      "genre": "Programming",
+      "read": false
+    },
+    {
+      "id": 16,
+      "title": "Continuous Delivery",
+      "author": "Jez Humble, David Farley",
+      "year": 2010,
+      "genre": "Programming",
+      "read": true
+    },
+    {
+      "id": 17,
+      "title": "Domain-Driven Design",
+      "author": "Eric Evans",
+      "year": 2003,
+      "genre": "Programming",
+      "read": false
+    },
+    {
+      "id": 18,
+      "title": "The Art of Computer Programming",
+      "author": "Donald E. Knuth",
+      "year": 1968,
+      "genre": "Programming",
+      "read": true
+    },
+    {
+      "id": 19,
+      "title": "Patterns of Enterprise Application Architecture",
+      "author": "Martin Fowler",
+      "year": 2002,
+      "genre": "Programming",
+      "read": false
+    },
+    {
+      "id": 20,
+      "title": "Don't Make Me Think",
+      "author": "Steve Krug",
+      "year": 2000,
+      "genre": "Programming",
+      "read": true
+    },
+    {
+      "id": 21,
+      "title": "The Clean Coder",
+      "author": "Robert C. Martin",
+      "year": 2011,
+      "genre": "Programming",
+      "read": false
+    },
+    {
+      "id": 22,
+      "title": "Soft Skills: The software developer's life manual",
+      "author": "John Sonmez",
+      "year": 2014,
+      "genre": "Programming",
+      "read": true
+    },
+    {
+      "id": 23,
+      "title": "Grokking Algorithms",
+      "author": "Aditya Bhargava",
+      "year": 2016,
+      "genre": "Programming",
+      "read": false
+    },
+    {
+      "id": 24,
+      "title": "Eloquent JavaScript",
+      "author": "Marijn Haverbeke",
+      "year": 2018,
+      "genre": "Programming",
+      "read": true
+    },
+    {
+      "id": 25,
+      "title": "Programming Elixir",
+      "author": "Dave Thomas",
+      "year": 2014,
+      "genre": "Programming",
+      "read": false
+    },
+    {
+      "id": 26,
+      "title": "Python Crash Course",
+      "author": "Eric Matthes",
+      "year": 2015,
+      "genre": "Programming",
+      "read": true
+    },
+    {
+      "id": 27,
+      "title": "Fluent Python",
+      "author": "Luciano Ramalho",
+      "year": 2015,
+      "genre": "Programming",
+      "read": false
+    },
+    {
+      "id": 28,
+      "title": "Cracking the Coding Interview",
+      "author": "Gayle Laakmann McDowell",
+      "year": 2015,
+      "genre": "Programming",
+      "read": true
+    }
+  ]
+}

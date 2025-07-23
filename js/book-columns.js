@@ -1,7 +1,7 @@
 import { openBookDetailModal } from "./book-detail.js";
 import { saveToStorage } from "./book-storage.js";
 import { clearBookFeedback, getBookFeedback } from "./book-feedback-storage.js";
-import { showNotification } from "./book-notification.js";
+import { displayNotification } from "./book-notification.js";
 
 // Global state
 const DEFAULT_COLUMNS = [
@@ -187,18 +187,21 @@ function handleDrop(event) {
 export function moveBookToColumn(targetColumnId, book) {
   if (!book) return;
 
+  /* Add to destination if missing */
   const destination = findColumnById(targetColumnId);
-  if (!destination) return;
-
-  // Add to destination if missing
-  if (!destination.books.some((b) => b.id === book.id)) {
+  if (
+    destination &&
+    !destination.books.some((b) => String(b.id) === String(book.id))
+  ) {
     destination.books.push(book);
   }
 
-  // Remove from any other column
+  /* Remove from every other column */
   columns.forEach((column) => {
     if (column.id !== targetColumnId) {
-      column.books = column.books.filter((b) => b.id !== book.id);
+      column.books = column.books.filter(
+        (b) => String(b.id) !== String(book.id)
+      );
     }
   });
 
@@ -206,14 +209,17 @@ export function moveBookToColumn(targetColumnId, book) {
 }
 
 function removeBookById(bookId) {
-  const bookTitle = findBookById(bookId)?.title ?? "";
+  const idAsString = String(bookId);
+  const bookTitle = findBookById(idAsString)?.title ?? "";
 
   columns.forEach((column) => {
-    column.books = column.books.filter((book) => book.id !== bookId);
+    column.books = column.books.filter(
+      (book) => String(book.id) !== idAsString
+    );
   });
 
-  clearBookFeedback(bookId);
-  showNotification(`"${bookTitle}" a été retiré de la liste`, "success");
+  clearBookFeedback(idAsString);
+  displayNotification(`"${bookTitle}" a été retiré de la liste`, "success");
   displayColumns();
 }
 
@@ -222,9 +228,10 @@ function findColumnById(columnId) {
   return columns.find((column) => column.id === columnId);
 }
 
-function findBookById(bookId) {
+function findBookById(searchedId) {
+  const target = String(searchedId); // normalise to string
   for (const column of columns) {
-    const found = column.books.find((book) => book.id === bookId);
+    const found = column.books.find((book) => String(book.id) === target);
     if (found) return found;
   }
   return null;

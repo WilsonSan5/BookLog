@@ -1,6 +1,6 @@
-import { moveToColumn, displayColumns } from "./book-columns.js";
+import { moveBookToColumn, displayColumns } from "./book-columns.js";
 import { renderFeedback, setupFeedbackHandlers } from "./book-feedback.js";
-import { showNotification } from "./book-notification.js";
+import { displayNotification } from "./book-notification.js";
 
 // Cached DOM refs
 const modalOverlay = document.getElementById("modal-overlay");
@@ -18,7 +18,6 @@ function formatPublicationDate(published) {
   const s = String(published);
   return s.includes("/") ? s : s; // keep as-is for now (simple school-safe)
 }
-
 
 // Optional: escape text if you ever display untrusted user input
 function escapeHtml(str) {
@@ -149,7 +148,7 @@ function onModalClick(e) {
   }
 
   if (action === "toRead") {
-    moveToColumn("toRead", currentBook);
+    moveBookToColumn("toRead", currentBook);
     closeModal();
     return;
   }
@@ -210,12 +209,12 @@ function removeGlobalModalListeners() {
 
 // Column change + feedback save
 function handleColumnChange(newColumnId, currentBook) {
-  moveToColumn(newColumnId, currentBook);
+  moveBookToColumn(newColumnId, currentBook);
 }
 
 function handleFeedbackSave(bookId, rating, comments) {
   displayColumns(); // refresh
-  showNotification(
+  displayNotification(
     `Feedback enregistré pour le livre ${currentBook?.title ?? ""}`,
     "success"
   );
