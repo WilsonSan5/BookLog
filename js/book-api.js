@@ -14,7 +14,6 @@ export async function getAllBooks() {
     // Fetch books from the OpenLibrary API
     const response = await fetch(ApiRoute);
     const data = await response.json();
-    console.log("Books fetched from API:", data);
 
     // Map API data to book objects with default values
     const apiBooks = data.map((work) => ({
@@ -50,8 +49,6 @@ export async function getAllBooks() {
 
     // Combine filtered API books with local custom books
     const allBooks = [...filteredApiBooks, ...localBooks];
-    // Log the combined list for debugging
-    console.log(allBooks);
     return allBooks;
   } catch (error) {
     // On error, log and return only local custom books

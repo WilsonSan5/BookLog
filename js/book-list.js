@@ -18,7 +18,6 @@ let searchTerm = "";
 const searchInputElement = document.getElementById("search-bar");
 searchInputElement.addEventListener("input", (event) => {
   searchTerm = event.target.value.toLowerCase();
-  console.log("Recherche en cours :", searchTerm);
 
   // Afficher le loader pendant la recherche
   showLoader();
@@ -111,8 +110,6 @@ function displayBooks(books) {
 
   // Supprimer de la liste les livres déjà présents dans les colonnes
   books = books.filter((book) => {
-    console.log("Livres déjà dans les colonnes:", booksIdInColumns);
-    console.log("Vérification du livre:", book.id);
     return !booksIdInColumns.includes(book.id);
   });
 
