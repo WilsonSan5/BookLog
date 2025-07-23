@@ -1,11 +1,11 @@
-import { moveToColumn } from "./book-columns.js";
+import { moveBookToColumn } from "./book-columns.js";
 import { openBookDetailModal } from "./book-detail.js";
 import { getAllBooks } from "./book-api.js";
 import { formatDate } from "./book-notification.js";
 import { openNewBookModal } from "./book-new.js";
 import { loadFromStorage } from "./book-storage.js";
-import { showNotification } from "./book-notification.js";
-import { getAllBooksInColumns } from "./book-columns.js";
+import { displayNotification } from "./book-notification.js";
+import { getAllBookIdsInColumns } from "./book-columns.js";
 
 const modalOverlay = document.getElementById("modal-overlay");
 
@@ -19,35 +19,37 @@ const searchInputElement = document.getElementById("search-bar");
 searchInputElement.addEventListener("input", (event) => {
   searchTerm = event.target.value.toLowerCase();
   console.log("Recherche en cours :", searchTerm);
-  
+
   // Afficher le loader pendant la recherche
   showLoader();
-  
-  getAllBooks().then((books) => {
-    const filteredBooks = books.filter((book) => {
-      return (
-        book.title.toLowerCase().includes(searchTerm) ||
-        book.author.toLowerCase().includes(searchTerm)
-      );
+
+  getAllBooks()
+    .then((books) => {
+      const filteredBooks = books.filter((book) => {
+        return (
+          book.title.toLowerCase().includes(searchTerm) ||
+          book.author.toLowerCase().includes(searchTerm)
+        );
+      });
+      displayBooks(filteredBooks);
+      // Masquer le loader après l'affichage
+      hideLoader();
+    })
+    .catch((error) => {
+      console.error("Erreur lors de la recherche :", error);
+      hideLoader();
     });
-    displayBooks(filteredBooks);
-    // Masquer le loader après l'affichage
-    hideLoader();
-  }).catch((error) => {
-    console.error("Erreur lors de la recherche :", error);
-    hideLoader();
-  });
 });
 
 // Fonction pour afficher le loader
 function showLoader() {
   const loader = document.getElementById("book-list-loader");
   const tableBody = document.getElementById("books-table-body");
-  
+
   if (loader) {
     loader.style.display = "flex";
   }
-  
+
   if (tableBody) {
     tableBody.style.display = "none";
   }
@@ -57,11 +59,11 @@ function showLoader() {
 function hideLoader() {
   const loader = document.getElementById("book-list-loader");
   const tableBody = document.getElementById("books-table-body");
-  
+
   if (loader) {
     loader.style.display = "none";
   }
-  
+
   if (tableBody) {
     tableBody.style.display = "block";
   }
@@ -89,21 +91,23 @@ export function openBookListModal() {
   // Afficher le loader au début du chargement
   showLoader();
 
-  getAllBooks().then((books) => {
-    displayBooks(books);
-    // Masquer le loader après le chargement
-    hideLoader();
-  }).catch((error) => {
-    console.error("Erreur lors du chargement des livres :", error);
-    hideLoader();
-  });
+  getAllBooks()
+    .then((books) => {
+      displayBooks(books);
+      // Masquer le loader après le chargement
+      hideLoader();
+    })
+    .catch((error) => {
+      console.error("Erreur lors du chargement des livres :", error);
+      hideLoader();
+    });
 }
 
 function displayBooks(books) {
   const tableBody = document.getElementById("books-table-body");
   tableBody.innerHTML = "";
 
-  const booksIdInColumns = getAllBooksInColumns();
+  const booksIdInColumns = getAllBookIdsInColumns();
 
   // Supprimer de la liste les livres déjà présents dans les colonnes
   books = books.filter((book) => {
@@ -124,7 +128,7 @@ function displayBooks(books) {
       "justify-between",
       "items-center",
       "mb-2",
-      "p-4",
+      "p-4"
     );
 
     const formattedDate = formatDate(book.published);
@@ -163,10 +167,13 @@ function displayBooks(books) {
 
     addBookToReadButton.addEventListener("click", (event) => {
       event.stopPropagation();
-      moveToColumn("toRead", book);
+      moveBookToColumn("toRead", book);
 
       // Afficher une notification
-      showNotification(`"${book.title}" a été ajouté à votre liste "À lire"`, "success");
+      displayNotification(
+        `"${book.title}" a été ajouté à votre liste "À lire"`,
+        "success"
+      );
 
       displayBooks(books);
       // Fermer la modale après avoir ajouté le livre
@@ -189,7 +196,7 @@ function closeBookListModal() {
 async function init() {
   // Afficher le loader au début de l'initialisation
   showLoader();
-  
+
   try {
     let books = await getAllBooks();
     const customBooks = loadFromStorage("customBooks");
