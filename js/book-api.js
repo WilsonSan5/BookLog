@@ -2,7 +2,7 @@
 import { loadFromStorage } from './book-storage.js';
 
 // API endpoint to fetch fiction books
-const ApiRoute = "https://openlibrary.org/subjects/fiction.json?limit=50";
+const ApiRoute = "https://keligmartin.github.io/api/books.json";
 
 /**
  * Fetches all books from the API and local storage, excluding deleted books.
@@ -14,17 +14,18 @@ export async function getAllBooks() {
     // Fetch books from the OpenLibrary API
     const response = await fetch(ApiRoute);
     const data = await response.json();
+    console.log("Books fetched from API:", data);
 
     // Map API data to book objects with default values
-    const apiBooks = data.works.map(work => ({
-      id: work.key.split('/').pop(), // Extract book ID from the key
+    const apiBooks = data.map(work => ({
+      id: work.isbn,
       title: work.title,
       // Use first author if available, else default
       author: work.authors ? work.authors[0].name : "Auteur inconnu",
       // Use publish year if available, else default
       published: work.first_publish_year ? String(work.first_publish_year) : "Date inconnue",
       // Generate a random page count between 100 and 499
-      pages: Math.floor(Math.random() * 400) + 100,
+      pages: work.pages,
       // Use up to 3 subjects as description, else default
       description: work.subject ? work.subject.slice(0, 3).join(", ") : "Description non disponible"
     }));

@@ -19,6 +19,7 @@ function formatPublicationDate(published) {
   return s.includes("/") ? s : s; // keep as-is for now (simple school-safe)
 }
 
+
 // Optional: escape text if you ever display untrusted user input
 function escapeHtml(str) {
   return String(str)
